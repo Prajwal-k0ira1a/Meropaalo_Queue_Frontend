@@ -15,7 +15,7 @@ export const QRGeneratorPage = () => {
       setLoading(true);
       setError("");
       try {
-        const data = await apiClient.get("/public/departments");
+        const data = await apiClient.get("/departments");
         setDepartments(Array.isArray(data) ? data : []);
       } catch (err) {
         const errorMsg = "Failed to load departments";
@@ -32,7 +32,9 @@ export const QRGeneratorPage = () => {
   const canGenerate = Boolean(department.trim());
 
   const selectedDepartmentName = useMemo(() => {
-    const dept = departments.find((d) => d._id === department);
+    const dept = (Array.isArray(departments) ? departments : []).find(
+      (d) => d._id === department,
+    );
     return dept?.name || "";
   }, [department, departments]);
 
@@ -92,7 +94,7 @@ export const QRGeneratorPage = () => {
                         : "Choose a department"}
                     </option>
                     {error && <option disabled>{error}</option>}
-                    {departments.map((dept) => (
+                    {(Array.isArray(departments) ? departments : []).map((dept) => (
                       <option key={dept._id} value={dept._id}>
                         {dept.name}
                       </option>
