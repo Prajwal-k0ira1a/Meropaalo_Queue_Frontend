@@ -16,7 +16,7 @@ export const QRGeneratorPage = () => {
       setError("");
       try {
         const data = await apiClient.get("/public/departments");
-        setDepartments(data?.data || []);
+        setDepartments(Array.isArray(data) ? data : []);
       } catch (err) {
         const errorMsg = "Failed to load departments";
         setError(errorMsg);
