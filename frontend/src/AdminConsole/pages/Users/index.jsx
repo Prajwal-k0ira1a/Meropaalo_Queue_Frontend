@@ -22,20 +22,26 @@ export default function UsersPage() {
         adminApi.getUsers(roleFilter || undefined),
         adminApi.getDepartments(),
       ]);
-      setUsers(
-        Array.isArray(list)
-          ? list
-          : Array.isArray(list?.users)
-            ? list.users
-            : [],
-      );
-      setDepartments(
-        Array.isArray(deptList)
-          ? deptList
-          : Array.isArray(deptList?.departments)
-            ? deptList.departments
-            : [],
-      );
+      console.log("getUsers response:", list);
+      console.log("getDepartments response:", deptList);
+      let usersArr = [];
+      let departmentsArr = [];
+      if (Array.isArray(list)) {
+        usersArr = list;
+      } else if (Array.isArray(list?.users)) {
+        usersArr = list.users;
+      } else {
+        console.warn("getUsers response is not an array:", list);
+      }
+      if (Array.isArray(deptList)) {
+        departmentsArr = deptList;
+      } else if (Array.isArray(deptList?.departments)) {
+        departmentsArr = deptList.departments;
+      } else {
+        console.warn("getDepartments response is not an array:", deptList);
+      }
+      setUsers(usersArr);
+      setDepartments(departmentsArr);
       setPendingRoles({});
       setPendingDepartments({});
     } catch (err) {
