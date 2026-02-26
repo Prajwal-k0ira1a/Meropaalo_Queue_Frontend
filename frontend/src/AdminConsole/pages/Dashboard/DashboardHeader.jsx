@@ -14,6 +14,7 @@ export default function DashboardHeader({
 }) {
   const queueActive = queueStatus === "active";
   const queueClosable = queueStatus === "active" || queueStatus === "paused";
+  const safeDepartments = Array.isArray(departments) ? departments : [];
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -30,7 +31,7 @@ export default function DashboardHeader({
           onChange={(e) => onDepartmentChange(e.target.value)}
           className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none focus:border-teal-500"
         >
-          {departments.map((dept) => (
+          {safeDepartments.map((dept) => (
             <option key={dept._id} value={dept._id}>
               {dept.name}
             </option>

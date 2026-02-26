@@ -60,9 +60,14 @@ export default function DashboardPage() {
 
   const loadDepartments = useCallback(async () => {
     const list = await adminApi.getDepartments();
-    setDepartments(list);
-    if (!selectedDepartmentId && list.length) {
-      setSelectedDepartmentId(list[0]._id);
+    const departmentsArr = Array.isArray(list)
+      ? list
+      : Array.isArray(list?.departments)
+        ? list.departments
+        : [];
+    setDepartments(departmentsArr);
+    if (!selectedDepartmentId && departmentsArr.length) {
+      setSelectedDepartmentId(departmentsArr[0]._id);
     }
   }, [selectedDepartmentId]);
 
