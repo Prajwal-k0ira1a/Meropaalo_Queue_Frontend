@@ -60,7 +60,7 @@ export const JoinPage = () => {
 
       try {
         const data = await apiClient.get(`/public/queue/${department}/info`);
-        setQueueInfo(data.data);
+        setQueueInfo(data);
       } catch (err) {
         const errorMsg = err.message || "Could not load queue information";
         toast.error(errorMsg);
@@ -79,14 +79,23 @@ export const JoinPage = () => {
     setError("");
     const loadingToast = toast.loading("Joining queue...");
     try {
-      const data = await apiClient.post("/tokens/issue", { department });
-      setToken(data.data);
+      const issuedToken = await apiClient.post("/tokens/issue", {
+        department,
+        customer: customerLogin
+          ? {
+              name: customerLogin.name,
+              email: customerLogin.email,
+            }
+          : undefined,
+      });
+
+      setToken(issuedToken);
       localStorage.setItem(
         TOKEN_STORAGE_KEY,
         JSON.stringify({
-          tokenId: json.data._id,
+          tokenId: issuedToken?._id,
           departmentId: department,
-          tokenNumber: json.data.tokenNumber,
+          tokenNumber: issuedToken?.tokenNumber,
         }),
       );
       toast.dismiss(loadingToast);
