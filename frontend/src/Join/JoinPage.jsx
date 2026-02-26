@@ -19,6 +19,15 @@ export const JoinPage = () => {
   const department = searchParams.get("department") || "";
   const canQuery = Boolean(department);
 
+  const persistedToken = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(TOKEN_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const customerLogin = useMemo(() => {
     try {
       const raw = localStorage.getItem(CUSTOMER_LOGIN_KEY);
@@ -39,6 +48,42 @@ export const JoinPage = () => {
   const [error, setError] = useState("");
   const [queueInfo, setQueueInfo] = useState(null);
   const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateToken = async () => {
+      if (token) return;
+      if (!persistedToken?.tokenId) return;
+      if (!department) return;
+      if (String(persistedToken.departmentId || "") !== String(department))
+        return;
+
+      try {
+        const statusData = await apiClient.get(
+          `/tokens/${persistedToken.tokenId}/status`,
+        );
+        if (cancelled) return;
+
+        setToken({
+          _id: statusData.tokenId,
+          tokenNumber: statusData.tokenNumber,
+          department,
+          status: statusData.status,
+        });
+      } catch {
+        if (!cancelled) {
+          localStorage.removeItem(TOKEN_STORAGE_KEY);
+        }
+      }
+    };
+
+    hydrateToken();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [department, persistedToken?.departmentId, persistedToken?.tokenId, token]);
 
   const queueOpen = queueInfo?.queueStatus === "active";
   const sessionId = useMemo(

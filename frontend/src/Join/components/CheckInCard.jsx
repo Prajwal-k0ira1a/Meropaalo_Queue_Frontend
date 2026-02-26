@@ -67,7 +67,7 @@ export default function CheckInCard({
               Session ID
             </span>
             <span className="text-[10px] font-mono text-slate-600 font-bold uppercase tracking-tighter mt-0.5">
-              {sessionId || "QUE-X08"}
+              {sessionId || "—"}
             </span>
           </div>
 

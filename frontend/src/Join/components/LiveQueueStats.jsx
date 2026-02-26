@@ -12,7 +12,14 @@ export default function LiveQueueStats({ queueInfo, isLoading }) {
             {/* Wait Time */}
             <StatBlock
                 label="Estimated Wait"
-                value={isLoading ? "—" : `${queueInfo?.estimatedWaitMinutes ?? "0"}`}
+                value={
+                    isLoading
+                        ? "—"
+                        : queueInfo?.estimatedWaitMinutes !== undefined &&
+                            queueInfo?.estimatedWaitMinutes !== null
+                          ? String(queueInfo.estimatedWaitMinutes)
+                          : "—"
+                }
                 unit="min"
                 highlight={isQueueActive}
             />
@@ -20,7 +27,14 @@ export default function LiveQueueStats({ queueInfo, isLoading }) {
             {/* People Ahead */}
             <StatBlock
                 label="Pending Tokens"
-                value={isLoading ? "—" : (queueInfo?.aheadCount ?? "0")}
+                value={
+                    isLoading
+                        ? "—"
+                        : queueInfo?.aheadCount !== undefined &&
+                            queueInfo?.aheadCount !== null
+                          ? String(queueInfo.aheadCount)
+                          : "—"
+                }
                 unit="total"
             />
 
