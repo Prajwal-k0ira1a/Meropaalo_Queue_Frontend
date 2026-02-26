@@ -22,8 +22,20 @@ export default function UsersPage() {
         adminApi.getUsers(roleFilter || undefined),
         adminApi.getDepartments(),
       ]);
-      setUsers(Array.isArray(list) ? list : []);
-      setDepartments(Array.isArray(deptList) ? deptList : []);
+      setUsers(
+        Array.isArray(list)
+          ? list
+          : Array.isArray(list?.users)
+            ? list.users
+            : [],
+      );
+      setDepartments(
+        Array.isArray(deptList)
+          ? deptList
+          : Array.isArray(deptList?.departments)
+            ? deptList.departments
+            : [],
+      );
       setPendingRoles({});
       setPendingDepartments({});
     } catch (err) {
@@ -91,15 +103,20 @@ export default function UsersPage() {
     setError("");
     const loadingToast = toast.loading("Saving changes...");
     try {
-      const roleUpdates = Object.entries(pendingRoles).map(([userId, role]) =>
-        adminApi.assignUserRole(userId, role),
-      );
+      const roleUpdates = Array.isArray(Object.entries(pendingRoles))
+        ? Object.entries(pendingRoles).map(([userId, role]) =>
+            adminApi.assignUserRole(userId, role),
+          )
+        : [];
       await Promise.all(roleUpdates);
 
-      const departmentUpdates = Object.entries(pendingDepartments).map(
-        ([userId, departmentId]) =>
-          adminApi.assignUserDepartment(userId, departmentId || null),
-      );
+      const departmentUpdates = Array.isArray(
+        Object.entries(pendingDepartments),
+      )
+        ? Object.entries(pendingDepartments).map(([userId, departmentId]) =>
+            adminApi.assignUserDepartment(userId, departmentId || null),
+          )
+        : [];
       await Promise.all(departmentUpdates);
 
       toast.dismiss(loadingToast);
@@ -198,7 +215,7 @@ export default function UsersPage() {
                 </td>
               </tr>
             )}
-            {users.map((user) => (
+            {(Array.isArray(users) ? users : []).map((user) => (
               <tr key={user._id} className="border-t border-gray-100 text-sm">
                 {(() => {
                   const effectiveRole =
@@ -235,11 +252,16 @@ export default function UsersPage() {
                           className="h-9 w-40 rounded-lg border border-gray-300 bg-white px-2 text-sm text-gray-700 outline-none focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <option value="">Unassigned</option>
-                          {departments.map((department) => (
-                            <option key={department._id} value={department._id}>
-                              {department.name}
-                            </option>
-                          ))}
+                          {(Array.isArray(departments) ? departments : []).map(
+                            (department) => (
+                              <option
+                                key={department._id}
+                                value={department._id}
+                              >
+                                {department.name}
+                              </option>
+                            ),
+                          )}
                         </select>
                       </td>
                       <td className="py-3">
@@ -255,7 +277,10 @@ export default function UsersPage() {
                           disabled={savingAll}
                           className="h-9 w-36 rounded-lg border border-gray-300 bg-white px-2 text-sm text-gray-700 outline-none focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {ROLE_OPTIONS.map((role) => (
+                          {(Array.isArray(ROLE_OPTIONS)
+                            ? ROLE_OPTIONS
+                            : []
+                          ).map((role) => (
                             <option key={role} value={role}>
                               {role}
                             </option>
