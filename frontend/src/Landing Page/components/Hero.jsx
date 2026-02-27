@@ -15,7 +15,7 @@ const Hero = () => {
         <div className="max-w-xl">
           {/* Section label */}
           <div className="animate-fade-up inline-block font-semibold text-[0.7rem] tracking-[0.05em] uppercase text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded mb-4">
-            Now v2.0 is Out
+            Now Pilot Version is Out
           </div>
 
           <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 animate-fade-up [animation-delay:0.1s]">
