@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Button } from "./components/Button";
 import { Input } from "./components/Input";
@@ -11,11 +11,13 @@ const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const returnTo = useMemo(() => searchParams.get("returnTo") || "", [searchParams]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,8 +40,9 @@ export const Login = () => {
       localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
       toast.dismiss(loadingToast);
       toast.success(`Welcome back, ${user.name || user.email || "User"}!`);
-      // Redirect based on role returned by the server
-      if (user.role === "admin") {
+      if (returnTo) {
+        navigate(returnTo, { replace: true });
+      } else if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role === "staff") {
         navigate("/staff-admin");

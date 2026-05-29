@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import JoinHeader from "./components/JoinHeader";
@@ -11,13 +11,16 @@ import ErrorBanner from "./components/ErrorBanner";
 import apiClient from "../api/apiClient";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
-const CUSTOMER_LOGIN_KEY = "meropaalo_customer_username";
 
 export const JoinPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const department = searchParams.get("department") || "";
   const canQuery = Boolean(department);
+  const returnTo = useMemo(() => {
+    if (!department) return "/login";
+    return `/join?department=${encodeURIComponent(department)}`;
+  }, [department]);
 
   const persistedToken = useMemo(() => {
     try {
@@ -28,25 +31,15 @@ export const JoinPage = () => {
     }
   }, []);
 
-  const customerLogin = useMemo(() => {
-    try {
-      const raw = localStorage.getItem(CUSTOMER_LOGIN_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!customerLogin) {
-      navigate(`/customer-login?department=${department}`);
-    }
-  }, [customerLogin, navigate, department]);
-
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState("");
   const [queueInfo, setQueueInfo] = useState(null);
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    userName: null,
+    message: "",
+  });
   const [token, setToken] = useState(null);
 
   useEffect(() => {
@@ -93,9 +86,13 @@ export const JoinPage = () => {
 
   useEffect(() => {
     const fetchQueueInfo = async () => {
-      // If no params are provided, do not fetch or set queue info
       if (!canQuery) {
         setQueueInfo(null);
+        setAuthState({
+          isAuthenticated: false,
+          userName: null,
+          message: "",
+        });
         setIsLoading(false);
         return;
       }
@@ -104,34 +101,59 @@ export const JoinPage = () => {
       setError("");
 
       try {
-        const data = await apiClient.get(`/public/queue/${department}/info`);
-        setQueueInfo(data);
+        const data = await apiClient.get(
+          `/qr/validate?department=${encodeURIComponent(department)}`,
+        );
+
+        if (data?.department) {
+          setQueueInfo({
+            ...data,
+            queueStatus: data.queueStatus || "inactive",
+          });
+        } else {
+          setQueueInfo(data);
+        }
+
+        setAuthState({
+          isAuthenticated: Boolean(data?.isAuthenticated),
+          userName: data?.userName || null,
+          message: data?.message || "",
+        });
+
+        if (data?.queueStatus === "active" && !data?.isAuthenticated) {
+          toast.dismiss();
+          navigate(
+            `/login?returnTo=${encodeURIComponent(returnTo)}`,
+            { replace: true },
+          );
+          return;
+        }
       } catch (err) {
         const errorMsg = err.message || "Could not load queue information";
         toast.error(errorMsg);
         setError(errorMsg);
         setQueueInfo(null);
+        setAuthState({
+          isAuthenticated: false,
+          userName: null,
+          message: errorMsg,
+        });
       } finally {
         setIsLoading(false);
       }
     };
     fetchQueueInfo();
-  }, [canQuery, department]);
+  }, [canQuery, department, navigate, returnTo]);
 
   const handleJoin = async () => {
-    if (!canQuery || isJoining || !queueOpen) return;
+    if (!canQuery || isJoining || !queueOpen || !authState.isAuthenticated)
+      return;
     setIsJoining(true);
     setError("");
     const loadingToast = toast.loading("Joining queue...");
     try {
       const issuedToken = await apiClient.post("/tokens/issue", {
         department,
-        customer: customerLogin
-          ? {
-              name: customerLogin.name,
-              email: customerLogin.email,
-            }
-          : undefined,
       });
 
       setToken(issuedToken);
@@ -170,7 +192,7 @@ export const JoinPage = () => {
               <h1 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight leading-none font-display">
                 {isLoading
                   ? "••••••••"
-                  : queueInfo?.institutionName || "Service Center"}
+                  : queueInfo?.department?.name || "Service Center"}
               </h1>
             </div>
             <div className="text-left md:text-right border-l-2 md:border-l-0 md:border-r-2 border-slate-100 pl-4 md:pl-0 md:pr-4 py-1">
@@ -178,7 +200,7 @@ export const JoinPage = () => {
                 Department
               </p>
               <p className="text-sm font-black text-slate-700 uppercase tracking-tighter">
-                {queueInfo?.queueName || "General Intake"}
+                {queueInfo?.department?.description || "General Intake"}
               </p>
             </div>
           </div>
@@ -195,15 +217,15 @@ export const JoinPage = () => {
             <TokenSuccessCard
               token={token}
               institution={null}
-              customerName={customerLogin?.name}
+              customerName={authState.userName}
             />
           ) : (
             <CheckInCard
               onJoin={handleJoin}
               isJoining={isJoining}
-              canJoin={queueOpen && !isLoading}
+              canJoin={queueOpen && !isLoading && authState.isAuthenticated}
               sessionId={sessionId}
-              customerName={customerLogin?.name}
+              customerName={authState.userName}
             />
           )}
         </div>

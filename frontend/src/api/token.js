@@ -8,10 +8,10 @@ const tokenApi = {
   getAllTokens: () => apiClient.get("/tokens"),
 
   // Issue a new token
-  issueToken: (tokenData) => apiClient.post("/tokens", tokenData),
+  issueToken: (tokenData) => apiClient.post("/tokens/issue", tokenData),
 
   // Get status of a specific token
-  getTokenStatus: (tokenId) => apiClient.get(`/tokens/${tokenId}`),
+  getTokenStatus: (tokenId) => apiClient.get(`/tokens/${tokenId}/status`),
 };
 
 export default tokenApi;
