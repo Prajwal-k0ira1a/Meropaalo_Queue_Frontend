@@ -43,6 +43,7 @@ export default function MeroPaaloStaffApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [counters, setCounters] = useState([]);
   const [tokens, setTokens] = useState([]);
+  const [queueStatus, setQueueStatus] = useState("closed");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -69,12 +70,18 @@ export default function MeroPaaloStaffApp() {
     setLoading(true);
     setError("");
     try {
-      const [counterList, tokenList] = await Promise.all([
+      const [counterList, tokenList, queueDays] = await Promise.all([
         staffApi.getCounters(departmentId),
         staffApi.getTokens(departmentId),
+        staffApi.getQueueDays(departmentId),
       ]);
       setCounters(counterList || []);
       setTokens(tokenList || []);
+      const today = toLocalDateOnly();
+      const todayQueueDay = (queueDays || []).find(
+        (queueDay) => toApiDateOnly(queueDay?.date) === today,
+      );
+      setQueueStatus(todayQueueDay?.status || "closed");
     } catch (err) {
       const errorMsg = err.message || "Failed to load staff panel";
       setError(errorMsg);
@@ -380,7 +387,7 @@ export default function MeroPaaloStaffApp() {
               </div>
               <div className="mb-5">
                 <QueueLifecycleActions
-                  queueStatus={dashboard.queueStatus}
+                  queueStatus={queueStatus}
                   loading={loading || actionLoading}
                   onRefresh={loadData}
                   onActivateQueue={onActivateQueue}
