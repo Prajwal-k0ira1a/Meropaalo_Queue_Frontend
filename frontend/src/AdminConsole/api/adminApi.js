@@ -56,7 +56,4 @@ export const adminApi = {
 
   serveNext: (departmentId, counterId, _unusedInstitutionId) =>
     apiClient.post("/tokens/serve-next", { department: departmentId, counterId }),
-
-  issueToken: (_unusedInstitutionId, departmentId) =>
-    apiClient.post("/tokens/issue", { department: departmentId }),
 };

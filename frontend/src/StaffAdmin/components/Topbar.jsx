@@ -5,10 +5,12 @@ import { authService } from "../../Authentication/authService";
 
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
-export default function Topbar({ onMenuClick, user, department }) {
+export default function Topbar({ onMenuClick, user, department, departmentId }) {
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
   const displayName = user?.name || user?.email || "Staff User";
+  const activeDepartmentId =
+    departmentId || user?.department?._id || user?.department || "";
 
   const onLogout = async () => {
     if (loggingOut) return;
@@ -22,6 +24,13 @@ export default function Topbar({ onMenuClick, user, department }) {
       navigate("/login", { replace: true });
       setLoggingOut(false);
     }
+  };
+
+  const onViewQr = () => {
+    if (!activeDepartmentId) return;
+    navigate(
+      `/qr-generator?department=${encodeURIComponent(activeDepartmentId)}`,
+    );
   };
 
   return (
@@ -57,6 +66,13 @@ export default function Topbar({ onMenuClick, user, department }) {
             {displayName}
           </span>
         </div>
+        <button
+          onClick={onViewQr}
+          disabled={!activeDepartmentId}
+          className="inline-flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          View QR
+        </button>
         <button
           onClick={onLogout}
           disabled={loggingOut}

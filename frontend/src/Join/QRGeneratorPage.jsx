@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import JoinHeader from "./components/JoinHeader";
 import JoinFooter from "./components/JoinFooter";
 import apiClient from "../api/apiClient";
 
 export const QRGeneratorPage = () => {
-  const [department, setDepartment] = useState("");
+  const [searchParams] = useSearchParams();
+  const departmentParam = searchParams.get("department") || "";
+  const [department, setDepartment] = useState(departmentParam);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,6 +31,11 @@ export const QRGeneratorPage = () => {
     };
     fetchDepartments();
   }, []);
+
+  useEffect(() => {
+    if (!departmentParam) return;
+    setDepartment(departmentParam);
+  }, [departmentParam]);
 
   const canGenerate = Boolean(department.trim());
 

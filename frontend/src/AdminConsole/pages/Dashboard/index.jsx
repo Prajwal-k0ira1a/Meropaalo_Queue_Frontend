@@ -246,32 +246,6 @@ export default function DashboardPage() {
     }
   }, [counters, loadDepartmentData, queueActive, selectedDepartmentId]);
 
-  const handleIssueToken = useCallback(async () => {
-    if (!selectedDepartmentId) return;
-    if (!queueActive) {
-      toast.error("Queue is not active. Activate queue first.");
-      setError("Queue is not active. Activate queue first.");
-      return;
-    }
-
-    setActionLoading(true);
-    setError("");
-    const loadingToast = toast.loading("Issuing token...");
-    try {
-      await adminApi.issueToken(null, selectedDepartmentId);
-      toast.dismiss(loadingToast);
-      toast.success("Token issued successfully!");
-      await loadDepartmentData(selectedDepartmentId);
-    } catch (err) {
-      const errorMsg = err.message || "Failed to issue token";
-      setError(errorMsg);
-      toast.dismiss(loadingToast);
-      toast.error(errorMsg);
-    } finally {
-      setActionLoading(false);
-    }
-  }, [loadDepartmentData, queueActive, selectedDepartmentId]);
-
   const handleActivateQueue = useCallback(async () => {
     if (!selectedDepartmentId) return;
     const today = toLocalDateOnly();
@@ -389,13 +363,12 @@ export default function DashboardPage() {
   return (
     <div className="flex h-full max-w-350 flex-col gap-4">
       <DashboardHeader
-        departments={departments}
-        selectedDepartmentId={selectedDepartmentId}
-        onDepartmentChange={setSelectedDepartmentId}
-        onIssueToken={handleIssueToken}
-        onActivateQueue={handleActivateQueue}
-        onCloseQueue={handleCloseQueue}
-        onResetQueue={handleResetQueue}
+      departments={departments}
+      selectedDepartmentId={selectedDepartmentId}
+      onDepartmentChange={setSelectedDepartmentId}
+      onActivateQueue={handleActivateQueue}
+      onCloseQueue={handleCloseQueue}
+      onResetQueue={handleResetQueue}
         onRefresh={handleRefresh}
         queueStatus={dashboard.queueStatus}
         loading={loading || actionLoading}

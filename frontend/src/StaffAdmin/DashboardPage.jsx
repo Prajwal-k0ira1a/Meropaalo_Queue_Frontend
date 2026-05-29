@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar";
 import DashboardPage from "./pages/Dashboard";
 import QueueListPage from "./pages/QueueList";
 import ServiceHistoryPage from "./pages/ServiceHistory";
+import QueueLifecycleActions from "../components/QueueLifecycleActions";
 import { staffApi } from "./api/staffApi";
 
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
@@ -290,14 +291,6 @@ export default function MeroPaaloStaffApp() {
       await staffApi.closeQueueDay(activeToday._id);
     }, "Failed to close queue");
 
-  const onIssueToken = () =>
-    runAction(async () => {
-      if (!departmentId) {
-        throw new Error("Department information is missing");
-      }
-      await staffApi.issueToken(departmentId);
-    }, "Failed to issue token");
-
   const pageProps = {
     loading,
     actionLoading,
@@ -326,7 +319,6 @@ export default function MeroPaaloStaffApp() {
     onResetQueue,
     onActivateQueue,
     onCloseQueue,
-    onIssueToken,
     onRefresh: loadData,
   };
 
@@ -342,6 +334,7 @@ export default function MeroPaaloStaffApp() {
         onMenuClick={() => setSidebarOpen(true)}
         user={authUser}
         department={authUser?.department?.name}
+        departmentId={departmentId}
       />
 
       {sidebarOpen && (
@@ -384,6 +377,16 @@ export default function MeroPaaloStaffApp() {
                     <span>{authUser?.name || "Staff"}</span>
                   </p>
                 </div>
+              </div>
+              <div className="mb-5">
+                <QueueLifecycleActions
+                  queueStatus={dashboard.queueStatus}
+                  loading={loading || actionLoading}
+                  onRefresh={loadData}
+                  onActivateQueue={onActivateQueue}
+                  onCloseQueue={onCloseQueue}
+                  onResetQueue={onResetQueue}
+                />
               </div>
               {pages[activeNav]}
             </>

@@ -47,7 +47,7 @@ export const Login = () => {
       } else if (user.role === "staff") {
         navigate("/staff-admin");
       } else {
-        navigate("/");
+        navigate("/join");
       }
     } catch (err) {
       const errorMsg = err.message || "Login failed. Please try again.";

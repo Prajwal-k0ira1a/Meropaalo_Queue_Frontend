@@ -35,7 +35,4 @@ export const staffApi = {
 
   resetQueueDay: (queueDayId) =>
     apiClient.post(`/queue-days/${queueDayId}/reset`),
-
-  issueToken: (departmentId) =>
-    apiClient.post("/tokens/issue", { department: departmentId }),
 };
