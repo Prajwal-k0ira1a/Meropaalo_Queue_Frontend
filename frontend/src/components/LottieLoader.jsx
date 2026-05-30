@@ -10,6 +10,7 @@ export default function LottieLoader({
   size = 64,
   className = "",
   ariaLabel = "Loading",
+  rounded = false,
 }) {
   const [animationData, setAnimationData] = useState(null);
 
@@ -40,7 +41,7 @@ export default function LottieLoader({
   if (!animationData) {
     return (
       <div
-        className={`animate-pulse rounded-full bg-slate-200 ${className}`}
+        className={`animate-pulse ${rounded ? "rounded-full" : "rounded-2xl"} bg-slate-200 ${className}`}
         style={{ width: size, height: size }}
         aria-label={ariaLabel}
         role="status"
