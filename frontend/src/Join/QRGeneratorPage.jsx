@@ -11,18 +11,16 @@ export const QRGeneratorPage = () => {
   const [department, setDepartment] = useState(departmentParam);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
 
   useEffect(() => {
     const fetchDepartments = async () => {
       setLoading(true);
-      setError("");
       try {
         const data = await apiClient.get("/departments");
         setDepartments(Array.isArray(data) ? data : []);
       } catch (err) {
         const errorMsg = "Failed to load departments";
-        setError(errorMsg);
         toast.error(errorMsg);
         setDepartments([]);
       } finally {
@@ -101,7 +99,6 @@ export const QRGeneratorPage = () => {
                         ? "Loading departments..."
                         : "Choose a department"}
                     </option>
-                    {error && <option disabled>{error}</option>}
                     {(Array.isArray(departments) ? departments : []).map((dept) => (
                       <option key={dept._id} value={dept._id}>
                         {dept.name}

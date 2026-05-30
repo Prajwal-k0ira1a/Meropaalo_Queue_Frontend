@@ -20,11 +20,9 @@ export const SignUp = () => {
   const [showConf, setShowConf] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setError("");
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -61,11 +59,9 @@ export const SignUp = () => {
       return;
     }
     if (!passwordsMatch) {
-      setError("Passwords do not match.");
       toast.error("Passwords do not match.");
       return;
     }
-    setError("");
     setIsLoading(true);
     const loadingToast = toast.loading("Creating account...");
     try {
@@ -79,7 +75,6 @@ export const SignUp = () => {
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       const errorMsg = err.message || "Registration failed. Please try again.";
-      setError(errorMsg);
       toast.dismiss(loadingToast);
       toast.error(errorMsg);
     } finally {
@@ -117,11 +112,6 @@ export const SignUp = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 font-medium">
-                {error}
-              </div>
-            )}
             {/* Full name + Role row */}
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -234,11 +224,6 @@ export const SignUp = () => {
                   {showConf ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {formData.confirmPassword && !passwordsMatch && (
-                <p className="text-red-500 text-xs mt-1.5 font-medium">
-                  Passwords do not match
-                </p>
-              )}
             </div>
 
             {/* Terms checkbox */}

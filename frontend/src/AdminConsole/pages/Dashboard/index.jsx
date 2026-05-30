@@ -374,12 +374,6 @@ export default function DashboardPage() {
         loading={loading || actionLoading}
       />
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
       <StatCards dashboard={dashboard} counters={counters} />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1fr_300px]">

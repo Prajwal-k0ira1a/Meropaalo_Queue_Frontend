@@ -9,6 +9,12 @@ import { authService } from "./authService";
 
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
+const getLoginErrorMessage = (error) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  "Login failed. Please try again.";
+
 export const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -16,18 +22,15 @@ export const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const returnTo = useMemo(() => searchParams.get("returnTo") || "", [searchParams]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setError("");
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
     const loadingToast = toast.loading("Logging in...");
     try {
@@ -50,8 +53,7 @@ export const Login = () => {
         navigate("/join");
       }
     } catch (err) {
-      const errorMsg = err.message || "Login failed. Please try again.";
-      setError(errorMsg);
+      const errorMsg = getLoginErrorMessage(err);
       toast.dismiss(loadingToast);
       toast.error(errorMsg);
     } finally {
@@ -90,11 +92,6 @@ export const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 font-medium">
-                {error}
-              </div>
-            )}
             <Input
               label="Work Email"
               type="email"

@@ -7,7 +7,6 @@ import JoinFooter from "./components/JoinFooter";
 import LiveQueueStats from "./components/LiveQueueStats";
 import CheckInCard from "./components/CheckInCard";
 import TokenSuccessCard from "./components/TokenSuccessCard";
-import ErrorBanner from "./components/ErrorBanner";
 import apiClient from "../api/apiClient";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
@@ -33,7 +32,7 @@ export const JoinPage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [queueInfo, setQueueInfo] = useState(null);
   const [authState, setAuthState] = useState({
     isAuthenticated: false,
@@ -131,7 +130,6 @@ export const JoinPage = () => {
       } catch (err) {
         const errorMsg = err.message || "Could not load queue information";
         toast.error(errorMsg);
-        setError(errorMsg);
         setQueueInfo(null);
         setAuthState({
           isAuthenticated: false,
@@ -149,7 +147,6 @@ export const JoinPage = () => {
     if (!canQuery || isJoining || !queueOpen || !authState.isAuthenticated)
       return;
     setIsJoining(true);
-    setError("");
     const loadingToast = toast.loading("Joining queue...");
     try {
       const issuedToken = await apiClient.post("/tokens/issue", {
@@ -169,7 +166,6 @@ export const JoinPage = () => {
       toast.success("Successfully joined queue!");
     } catch (err) {
       const errorMsg = err.message || "Could not reserve spot.";
-      setError(errorMsg);
       toast.dismiss(loadingToast);
       toast.error(errorMsg);
     } finally {
@@ -206,8 +202,6 @@ export const JoinPage = () => {
           </div>
           <div className="h-0.5 bg-slate-100/50 w-full rounded-full" />
         </div>
-
-        <ErrorBanner message={error} />
 
         <LiveQueueStats queueInfo={queueInfo} isLoading={isLoading} />
 

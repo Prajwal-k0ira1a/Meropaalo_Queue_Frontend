@@ -7,7 +7,6 @@ import TokenProgress from "./components/TokenProgress";
 import TokenMainInfo from "./components/TokenMainInfo";
 import TokenActions from "./components/TokenActions";
 import JoinFooter from "../Join/components/JoinFooter";
-import ErrorBanner from "../Join/components/ErrorBanner";
 import apiClient from "../api/apiClient";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
@@ -36,7 +35,7 @@ export default function TokenPage() {
     searchParams.get("department") || persistedToken?.departmentId || "";
 
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [tokenData, setTokenData] = useState(null);
   const [queueInfo, setQueueInfo] = useState(null);
 
@@ -48,7 +47,6 @@ export default function TokenPage() {
         if (!cancelled) {
           const errorMsg =
             "Missing tokenId. Please re-open from the issued token link.";
-          setError(errorMsg);
           toast.error(errorMsg);
           setIsLoading(false);
         }
@@ -71,7 +69,6 @@ export default function TokenPage() {
       } catch (err) {
         if (!cancelled) {
           const errorMsg = err.message || "Failed to fetch token status.";
-          setError(errorMsg);
           toast.error(errorMsg);
         }
       } finally {
@@ -160,8 +157,6 @@ export default function TokenPage() {
             <span className="text-slate-400">Live Status</span>
           </div>
         </div>
-
-        <ErrorBanner message={error} />
 
         <div className="flex flex-col gap-5 md:gap-6">
           <TokenProgress status={tokenData?.status || "queue"} />

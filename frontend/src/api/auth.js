@@ -5,7 +5,8 @@ import apiClient from './apiClient';
  */
 const authApi = {
     // Login a user
-    login: (credentials) => apiClient.post('/auth/login', credentials),
+    login: (credentials) =>
+      apiClient.post('/auth/login', credentials, { withCredentials: true }),
 
     // Register a new user
     register: (userData) => apiClient.post('/auth/register', userData),
