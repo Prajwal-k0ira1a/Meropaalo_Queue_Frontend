@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import JoinHeader from "./components/JoinHeader";
 import JoinFooter from "./components/JoinFooter";
 import apiClient from "../api/apiClient";
+import LottieLoader from "../components/LottieLoader";
 
 export const QRGeneratorPage = () => {
   const [searchParams] = useSearchParams();
@@ -11,7 +12,6 @@ export const QRGeneratorPage = () => {
   const [department, setDepartment] = useState(departmentParam);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState("");
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -122,23 +122,31 @@ export const QRGeneratorPage = () => {
           <div className="w-full md:w-80 bg-slate-50/50 p-8 flex flex-col items-center justify-center text-center gap-6">
             {!canGenerate ? (
               <div className="flex flex-col items-center gap-4 text-slate-300">
-                <div className="w-48 h-48 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center">
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </div>
+                {loading ? (
+                  <LottieLoader
+                    size={132}
+                    className="shrink-0"
+                    ariaLabel="Loading departments"
+                  />
+                ) : (
+                  <div className="w-48 h-48 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center">
+                    <svg
+                      className="w-12 h-12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </div>
+                )}
                 <p className="text-xs font-bold uppercase tracking-widest">
-                  Waiting for Input
+                  {loading ? "Loading Departments" : "Waiting for Input"}
                 </p>
               </div>
             ) : (
