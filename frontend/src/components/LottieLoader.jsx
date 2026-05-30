@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
+import * as LottieReact from "lottie-react";
+
+const Lottie =
+  LottieReact.default?.default ?? LottieReact.default ?? LottieReact;
 
 const LOADER_PATH = "/assets/Loader.json";
 
