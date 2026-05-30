@@ -95,14 +95,14 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-3">
-            <a
-              href="#"
+            <Link
+              to="/login"
               className="w-full py-2.5 text-center text-sm font-semibold text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Log in
-            </a>
+            </Link>
             <a
-              href="#"
+              href=""
               className="w-full py-2.5 text-center text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors shadow-md shadow-teal-500/25"
             >
               Request Demo

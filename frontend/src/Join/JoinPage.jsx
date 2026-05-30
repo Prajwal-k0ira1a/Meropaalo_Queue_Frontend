@@ -175,7 +175,7 @@ export const JoinPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <JoinHeader />
+      <JoinHeader showLogout />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-3 md:py-5 flex flex-col gap-6 md:gap-8">
         {/* Standardized Header / Breadcrumb Area — Restored MeroPaalo Style */}

@@ -1,12 +1,22 @@
-import { Link, useSearchParams, useLocation } from "react-router-dom";
+import { Link, useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import toast from "react-hot-toast";
+import { authService } from "../../Authentication/authService";
 
-export default function JoinHeader({ showTimer = false, showNav = true }) {
+const CUSTOMER_TOKEN_STORAGE_KEY = "meropaalo_customer_token";
+
+export default function JoinHeader({
+  showTimer = false,
+  showNav = true,
+  showLogout = false,
+}) {
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const params = searchParams.toString() ? `?${searchParams.toString()}` : "";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // Timer logic for tracking consistency
   const [countdown, setCountdown] = useState(30);
@@ -25,6 +35,24 @@ export default function JoinHeader({ showTimer = false, showNav = true }) {
     { to: `/join${params}`, label: "Queue Dashboard", isActive: isJoinActive },
     { to: "/token-status", label: "Live Tracking", isActive: isTokenActive },
   ];
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+    const loadingToast = toast.loading("Logging out...");
+    try {
+      await authService.logout();
+    } catch {
+      // Continue local cleanup even if the server logout request fails.
+    } finally {
+      localStorage.removeItem(CUSTOMER_TOKEN_STORAGE_KEY);
+      toast.dismiss(loadingToast);
+      toast.success("Logged out successfully");
+      navigate("/login", { replace: true });
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <header className="w-full bg-white border-b border-slate-100 sticky top-0 z-50 transition-all duration-300">
@@ -74,9 +102,21 @@ export default function JoinHeader({ showTimer = false, showNav = true }) {
             )}
 
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 cursor-pointer hover:bg-slate-200 hover:text-slate-600 transition-all duration-300 hover:scale-105">
-                <UserIcon />
-              </div>
+            <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 cursor-pointer hover:bg-slate-200 hover:text-slate-600 transition-all duration-300 hover:scale-105">
+              <UserIcon />
+            </div>
+
+            {showLogout && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <LogOut size={14} />
+                {loggingOut ? "Logging out..." : "Logout"}
+              </button>
+            )}
 
               {/* Mobile Toggle */}
               {showNav && (
@@ -132,6 +172,18 @@ export default function JoinHeader({ showTimer = false, showNav = true }) {
                 {countdown}s
               </span>
             </div>
+          )}
+
+          {showLogout && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogOut size={14} />
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
           )}
         </div>
       )}
