@@ -72,7 +72,21 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex h-screen lg:overflow-hidden overflow-y-auto">
+    <div className="relative flex h-screen lg:overflow-hidden overflow-y-auto">
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 backdrop-blur-sm px-6">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-white/15 bg-white/10 px-8 py-10 shadow-2xl shadow-slate-950/30">
+            <LottieLoader size={96} ariaLabel="Signing in" />
+            <div className="text-center">
+              <p className="text-lg font-semibold text-white">Signing you in</p>
+              <p className="mt-1 text-sm text-slate-200">
+                Please wait while we verify your account.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Left branded panel */}
       <LeftSidebar />
 
@@ -174,14 +188,7 @@ export const Login = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? (
-                <>
-                  <LottieLoader size={20} className="shrink-0" ariaLabel="Signing in" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In →"
-              )}
+              Sign In →
             </Button>
           </form>
 
