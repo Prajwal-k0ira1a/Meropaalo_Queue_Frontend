@@ -122,7 +122,7 @@ export const JoinPage = () => {
         if (data?.queueStatus === "active" && !data?.isAuthenticated) {
           toast.dismiss();
           navigate(
-            `/login?returnTo=${encodeURIComponent(returnTo)}`,
+            `/login?returnTo=${encodeURIComponent(returnTo)}&department=${encodeURIComponent(department)}`,
             { replace: true },
           );
           return;

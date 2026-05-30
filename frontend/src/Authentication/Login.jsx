@@ -23,6 +23,13 @@ export const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const returnTo = useMemo(() => searchParams.get("returnTo") || "", [searchParams]);
+  const departmentFromQuery = useMemo(
+    () => searchParams.get("department") || "",
+    [searchParams],
+  );
+  const nextJoinPath = departmentFromQuery
+    ? `/join?department=${encodeURIComponent(departmentFromQuery)}`
+    : "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,6 +52,8 @@ export const Login = () => {
       toast.success(`Welcome back, ${user.name || user.email || "User"}!`);
       if (returnTo) {
         navigate(returnTo, { replace: true });
+      } else if (nextJoinPath) {
+        navigate(nextJoinPath, { replace: true });
       } else if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role === "staff") {
