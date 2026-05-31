@@ -1,52 +1,74 @@
 import { Link } from "react-router-dom";
 
-export default function UpcomingQueue({ upcomingQueue = [], totalInQueue = 0, departmentId = "" }) {
+export default function UpcomingQueue({
+  upcomingQueue = [],
+  totalInQueue = 0,
+  departmentId = "",
+}) {
   return (
-    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <div className="mb-5 flex items-center justify-between">
-        <span className="text-base font-semibold text-slate-900">
-          Upcoming Queue
-        </span>
-        <span className="text-sm font-semibold text-slate-500">{totalInQueue} IN LINE</span>
+    <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+              Upcoming Queue
+            </p>
+            <h2 className="mt-1 text-xl font-bold text-slate-900">
+              Next tickets
+            </h2>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+            {totalInQueue} waiting
+          </span>
+        </div>
       </div>
-      <div className="flex max-h-[420px] flex-1 flex-col gap-1 overflow-auto">
+
+      <div className="space-y-2 p-5 sm:p-6">
         {upcomingQueue.length === 0 && (
-          <div className="rounded-xl border border-slate-200 px-3 py-4 text-sm text-slate-500">
-            No waiting tokens in queue.
+          <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-5 text-sm text-slate-500">
+            No waiting tokens in queue right now.
           </div>
         )}
-        {upcomingQueue.map((p) => (
+
+        {upcomingQueue.map((item) => (
           <div
-            key={p.id}
-            className={`flex items-center justify-between rounded-xl px-3 py-3 ${
-              p.next
-                ? "border border-teal-200 bg-teal-50"
-                : "border border-transparent"
+            key={item.id}
+            className={`flex items-center justify-between gap-4 rounded-2xl px-4 py-4 transition-colors ${
+              item.next
+                ? "border border-teal-200 bg-teal-50/80"
+                : "border border-slate-100 bg-slate-50/80 hover:bg-slate-100/70"
             }`}
           >
-            <div>
+            <div className="min-w-0">
               <Link
-                to={`/token-status?tokenId=${encodeURIComponent(p.id)}&department=${encodeURIComponent(departmentId)}`}
-                className="text-sm font-semibold text-slate-900 underline-offset-2 hover:text-teal-700 hover:underline"
+                to={`/token-status?tokenId=${encodeURIComponent(item.id)}&department=${encodeURIComponent(departmentId)}`}
+                className="text-base font-bold tracking-tight text-slate-950 underline-offset-2 hover:text-teal-700 hover:underline"
               >
-                {p.ticket}
+                {item.ticket}
               </Link>
-              <p className="mt-0.5 text-xs text-slate-500">{p.name}</p>
+              <p className="mt-1 truncate text-sm text-slate-500">
+                {item.name}
+              </p>
             </div>
+
             <div className="text-right">
-              {p.next && (
-                <p className="text-xs font-semibold text-teal-700">NEXT</p>
+              {item.next && (
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-700">
+                  Next
+                </p>
               )}
               <p
-                className={`text-sm font-semibold ${p.next ? "text-teal-700" : "text-slate-700"}`}
+                className={`mt-1 text-sm font-semibold ${
+                  item.next ? "text-teal-700" : "text-slate-700"
+                }`}
               >
-                {p.wait}
+                {item.wait}
               </p>
-              {p.next && <p className="text-xs text-slate-400">WAIT</p>}
+              <p className="text-xs text-slate-400">waiting</p>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

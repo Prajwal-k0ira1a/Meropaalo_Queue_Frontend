@@ -8,6 +8,7 @@ import LiveQueueStats from "./components/LiveQueueStats";
 import CheckInCard from "./components/CheckInCard";
 import TokenSuccessCard from "./components/TokenSuccessCard";
 import apiClient from "../api/apiClient";
+import LoadingScreen from "../components/LoadingScreen";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
 
@@ -142,6 +143,15 @@ export const JoinPage = () => {
     };
     fetchQueueInfo();
   }, [canQuery, department, navigate, returnTo]);
+
+  if (isLoading && !queueInfo && !token) {
+    return (
+      <LoadingScreen
+        title="Loading queue"
+        subtitle="Checking your department status and preparing the queue view."
+      />
+    );
+  }
 
   const handleJoin = async () => {
     if (!canQuery || isJoining || !queueOpen || !authState.isAuthenticated)

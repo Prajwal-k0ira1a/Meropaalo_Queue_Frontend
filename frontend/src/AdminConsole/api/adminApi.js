@@ -31,6 +31,9 @@ export const adminApi = {
 
   getUsers: (role) => apiClient.get("/users", { params: { role } }),
 
+  updateUser: (userId, payload) =>
+    apiClient.patch(`/users/${userId}`, payload),
+
   assignUserRole: (userId, role) =>
     apiClient.patch(`/users/${userId}/role`, { role }),
 

@@ -46,8 +46,13 @@ apiClient.interceptors.response.use(
     return payload;
   },
   (error) => {
-    console.error("API Error:", error.response?.data?.message || error.message);
-    
+    const backendMessage = error.response?.data?.message;
+    if (backendMessage) {
+      error.message = backendMessage;
+    }
+
+    console.error("API Error:", backendMessage || error.message);
+
     return Promise.reject(error);
   }
 );

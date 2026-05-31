@@ -7,6 +7,7 @@ import QueueListPage from "./pages/QueueList";
 import ServiceHistoryPage from "./pages/ServiceHistory";
 import QueueLifecycleActions from "../components/QueueLifecycleActions";
 import { staffApi } from "./api/staffApi";
+import { adminApi } from "../AdminConsole/api/adminApi";
 
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
@@ -43,6 +44,7 @@ export default function MeroPaaloStaffApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [counters, setCounters] = useState([]);
   const [tokens, setTokens] = useState([]);
+  const [departmentName, setDepartmentName] = useState("");
   const [queueStatus, setQueueStatus] = useState("closed");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -61,6 +63,51 @@ export default function MeroPaaloStaffApp() {
   const departmentId = String(
     authUser?.department?._id || authUser?.department || "",
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolveDepartmentName = async () => {
+      const storedDepartmentName = authUser?.department?.name || "";
+      if (storedDepartmentName) {
+        setDepartmentName(storedDepartmentName);
+        return;
+      }
+
+      if (!departmentId) {
+        setDepartmentName("");
+        return;
+      }
+
+      try {
+        const response = await adminApi.getDepartments();
+        const payload = response?.data ?? response;
+        const departments = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.departments)
+            ? payload.departments
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : [];
+        const match = departments.find(
+          (department) => String(department?._id) === departmentId,
+        );
+        if (isMounted) {
+          setDepartmentName(match?.name || "");
+        }
+      } catch {
+        if (isMounted) {
+          setDepartmentName("");
+        }
+      }
+    };
+
+    resolveDepartmentName();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authUser?.department?.name, departmentId]);
 
   const loadData = useCallback(async () => {
     if (!departmentId) {
@@ -302,6 +349,7 @@ export default function MeroPaaloStaffApp() {
     loading,
     actionLoading,
     error,
+    queueStatus,
     queueItems,
     upcomingQueue,
     historyRecords,
@@ -336,11 +384,11 @@ export default function MeroPaaloStaffApp() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col overflow-hidden bg-gray-100 font-sans">
+    <div className="flex min-h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(45,212,191,0.12),_transparent_25%),linear-gradient(to_bottom,_#f8fafc,_#eef2ff)] font-sans">
       <Topbar
         onMenuClick={() => setSidebarOpen(true)}
         user={authUser}
-        department={authUser?.department?.name}
+        department={departmentName || authUser?.department?.name}
         departmentId={departmentId}
       />
 
@@ -360,12 +408,12 @@ export default function MeroPaaloStaffApp() {
           }}
           sidebarOpen={sidebarOpen}
           hasError={Boolean(error)}
-          department={authUser?.department?.name}
+          department={departmentName || authUser?.department?.name}
         />
 
         <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-6">
           {!departmentId ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
               Your account has no department assignment. Ask an admin to assign
               your staff account to a department.
             </div>
@@ -378,9 +426,9 @@ export default function MeroPaaloStaffApp() {
                   </h1>
                   <p className="mt-1 text-sm text-slate-600">
                     <span className="font-semibold text-teal-700">
-                      {authUser?.department?.name || "Department"}
+                      {departmentName || authUser?.department?.name || "Department"}
                     </span>
-                    {" • "}
+                    {" | "}
                     <span>{authUser?.name || "Staff"}</span>
                   </p>
                 </div>
@@ -401,7 +449,7 @@ export default function MeroPaaloStaffApp() {
         </main>
       </div>
 
-      <footer className="border-t border-gray-200 bg-white py-3 text-center text-xs text-gray-400 sm:py-4">
+      <footer className="border-t border-slate-200 bg-white py-3 text-center text-xs text-slate-400 sm:py-4">
         (c) 2024 MeroPaalo. All rights reserved.
       </footer>
     </div>

@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import LottieLoader from "../../../components/LottieLoader";
 
 function tokenColor(token) {
   const prefix = token.charAt(0);
@@ -87,7 +88,18 @@ export default function LiveQueueTable({
                     disabled={loading || !queueActive}
                     className="rounded-lg border border-teal-600 px-3 py-1 text-xs font-semibold text-teal-600 transition-colors hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Serve Next
+                    {loading ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <LottieLoader
+                          size={14}
+                          className="shrink-0"
+                          ariaLabel="Serving next token"
+                        />
+                        Processing...
+                      </span>
+                    ) : (
+                      "Serve Next"
+                    )}
                   </button>
                 </td>
               </tr>

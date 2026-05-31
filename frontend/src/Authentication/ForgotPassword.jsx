@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import LottieLoader from "../components/LottieLoader";
 import { Button } from "./components/Button";
 import { Input } from "./components/Input";
 import { LeftSidebar } from "./components/LeftSidebar";
@@ -66,6 +67,7 @@ export const ForgotPassword = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
 
             <Button
@@ -75,7 +77,14 @@ export const ForgotPassword = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Sending link..." : "Send Reset Link ->"}
+              {isLoading ? (
+                <>
+                  <LottieLoader size={18} className="shrink-0" ariaLabel="Sending reset link" />
+                  Sending link...
+                </>
+              ) : (
+                "Send Reset Link ->"
+              )}
             </Button>
           </form>
 

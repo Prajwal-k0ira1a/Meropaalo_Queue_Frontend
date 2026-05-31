@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { adminApi } from "../../api/adminApi";
 import toast from "react-hot-toast";
+import LottieLoader from "../../../components/LottieLoader";
 
 const DEFAULT_FORM = {
   name: "",
@@ -169,11 +170,16 @@ export default function DepartmentsPage() {
             disabled={!canSave || saving}
             className="h-10 rounded-lg bg-teal-600 px-4 text-sm font-semibold text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving
-              ? "Saving..."
-              : editingDepartmentId
-                ? "Update Department"
-                : "Add Department"}
+            {saving ? (
+              <span className="inline-flex items-center gap-2">
+                <LottieLoader size={14} className="shrink-0" ariaLabel="Saving department" />
+                Saving...
+              </span>
+            ) : editingDepartmentId ? (
+              "Update Department"
+            ) : (
+              "Add Department"
+            )}
           </button>
           {editingDepartmentId && (
             <button

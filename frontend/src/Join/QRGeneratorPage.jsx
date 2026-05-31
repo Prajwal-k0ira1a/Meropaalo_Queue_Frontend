@@ -5,6 +5,7 @@ import JoinHeader from "./components/JoinHeader";
 import JoinFooter from "./components/JoinFooter";
 import apiClient from "../api/apiClient";
 import LottieLoader from "../components/LottieLoader";
+import LoadingScreen from "../components/LoadingScreen";
 
 export const QRGeneratorPage = () => {
   const [searchParams] = useSearchParams();
@@ -51,6 +52,15 @@ export const QRGeneratorPage = () => {
     });
     return `${apiClient.defaults.baseURL}/qr?${params.toString()}`;
   }, [canGenerate, department]);
+
+  if (loading && departments.length === 0) {
+    return (
+      <LoadingScreen
+        title="Loading departments"
+        subtitle="Preparing the QR generator and fetching department data."
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">

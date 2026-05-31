@@ -8,6 +8,7 @@ import TokenMainInfo from "./components/TokenMainInfo";
 import TokenActions from "./components/TokenActions";
 import JoinFooter from "../Join/components/JoinFooter";
 import apiClient from "../api/apiClient";
+import LoadingScreen from "../components/LoadingScreen";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
 
@@ -126,6 +127,15 @@ export default function TokenPage() {
   }, [departmentId]);
 
   const params = searchParams.toString() ? `?${searchParams.toString()}` : "";
+
+  if (isLoading && !tokenData) {
+    return (
+      <LoadingScreen
+        title="Loading token status"
+        subtitle="Checking your position in the queue and current serving details."
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">

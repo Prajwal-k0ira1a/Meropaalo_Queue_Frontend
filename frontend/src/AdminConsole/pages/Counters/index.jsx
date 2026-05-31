@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { adminApi } from "../../api/adminApi";
 import toast from "react-hot-toast";
+import LottieLoader from "../../../components/LottieLoader";
 
 export default function CountersPage() {
   const [departments, setDepartments] = useState([]);
@@ -196,7 +197,14 @@ export default function CountersPage() {
             disabled={!canCreate || creating}
             className="h-10 rounded-lg bg-teal-600 px-4 text-sm font-semibold text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {creating ? "Creating..." : "Add Counter"}
+            {creating ? (
+              <span className="inline-flex items-center gap-2">
+                <LottieLoader size={14} className="shrink-0" ariaLabel="Creating counter" />
+                Creating...
+              </span>
+            ) : (
+              "Add Counter"
+            )}
           </button>
         </div>
       </div>
