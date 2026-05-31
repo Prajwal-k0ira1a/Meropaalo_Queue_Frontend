@@ -14,63 +14,67 @@ export default function JoinLoginCard({
   error,
 }) {
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6 space-y-2">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-teal-600">
-          Department Access
-        </p>
-        <h2 className="text-2xl font-black tracking-tight text-slate-900">
-          Sign in to continue
-        </h2>
-        <p className="text-sm text-slate-500">
-          {departmentName
-            ? `Authenticate for ${departmentName} and continue to your QR queue.`
-            : "Authenticate to continue to your QR queue."}
-        </p>
-      </div>
+    <div className="relative overflow-hidden rounded-[22px] border border-slate-200 bg-[#fbfcff] px-4 py-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)] sm:px-6 sm:py-7">
+      <div className="absolute inset-x-0 top-0 h-1 bg-teal-500" />
 
-      <form onSubmit={onSubmit} className="space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => onEmailChange(e.target.value)}
-          placeholder="jane@example.com"
-          icon={Mail}
-          autoComplete="email"
-          required
-          disabled={isSubmitting}
-        />
+      <div className="mx-auto max-w-md">
+        <div className="mb-5 space-y-2 text-center">
+          <p className="text-[9px] font-black uppercase tracking-[0.35em] text-teal-600">
+            Department Access
+          </p>
+          <h2 className="font-display text-[28px] font-black tracking-tight text-slate-950 sm:text-[30px]">
+            Sign in to continue
+          </h2>
+          <p className="text-[13px] leading-6 text-slate-500">
+            {departmentName
+              ? `Authenticate for ${departmentName} and continue to your queue dashboard.`
+              : "Authenticate to continue to your queue dashboard."}
+          </p>
+        </div>
 
-        <Input
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder="••••••••"
-          icon={Lock}
-          autoComplete="current-password"
-          required
-          disabled={isSubmitting}
-        />
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
+            placeholder="jane@example.com"
+            icon={Mail}
+            autoComplete="email"
+            required
+            disabled={isSubmitting}
+          />
 
-        {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {error}
-          </div>
-        )}
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => onPasswordChange(e.target.value)}
+            placeholder="••••••••"
+            icon={Lock}
+            autoComplete="current-password"
+            required
+            disabled={isSubmitting}
+          />
 
-        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <LottieLoader size={18} className="shrink-0" ariaLabel="Signing in" />
-              Signing in...
-            </>
-          ) : (
-            "Continue to Queue"
+          {error && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">
+              {error}
+            </div>
           )}
-        </Button>
-      </form>
+
+          <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <LottieLoader size={18} className="shrink-0" ariaLabel="Signing in" />
+                Signing in...
+              </>
+            ) : (
+              "Continue to Queue"
+            )}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

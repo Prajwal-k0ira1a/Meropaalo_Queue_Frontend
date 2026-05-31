@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Edit3, Plus, Search, Save, Users } from "lucide-react";
+import { Edit3, Eye, EyeOff, KeyRound, Search, Save, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
 import LottieLoader from "../../../components/LottieLoader";
@@ -12,6 +12,8 @@ const emptyEditorState = {
   phone: "",
   role: "customer",
   department: "",
+  password: "",
+  confirmPassword: "",
 };
 
 const normalizeUsers = (payload) => {
@@ -41,6 +43,7 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [editForm, setEditForm] = useState(emptyEditorState);
   const [savingUser, setSavingUser] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -102,13 +105,17 @@ export default function UsersPage() {
       phone: user.phone || "",
       role: user.role || "customer",
       department: user.department?._id || user.department || "",
+      password: "",
+      confirmPassword: "",
     });
+    setShowPassword(false);
   };
 
   const closeEditor = () => {
     if (savingUser) return;
     setEditingUser(null);
     setEditForm(emptyEditorState);
+    setShowPassword(false);
   };
 
   const onRoleChange = (userId, currentRole, nextRole) => {
@@ -190,18 +197,37 @@ export default function UsersPage() {
       return;
     }
 
+    const password = editForm.password.trim();
+    const confirmPassword = editForm.confirmPassword.trim();
+    if (password || confirmPassword) {
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+    }
+
     setSavingUser(true);
     const loadingToast = toast.loading("Updating user...");
 
     try {
-      await adminApi.updateUser(editingUser._id, {
+      const payload = {
         name: trimmedName,
         email: editForm.email.trim(),
         phone: editForm.phone.trim(),
         role: editForm.role,
         department:
           editForm.role === "staff" ? editForm.department || null : null,
-      });
+      };
+
+      if (password) {
+        payload.password = password;
+      }
+
+      await adminApi.updateUser(editingUser._id, payload);
 
       toast.dismiss(loadingToast);
       toast.success("User updated successfully!");
@@ -255,7 +281,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1.4fr_1fr_auto]">
+      <div className="grid gap-3 rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1.4fr_1fr_auto]">
         <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
           <Search size={15} className="text-slate-400" />
           <input
@@ -462,13 +488,13 @@ export default function UsersPage() {
       </div>
 
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 px-4 py-6 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-[28px] border border-white/10 bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl">
             <div className="border-b border-slate-100 px-6 py-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                    Edit User
+                    Edit Profile
                   </p>
                   <h2 className="mt-1 text-2xl font-black text-slate-900">
                     {editingUser.name || "User profile"}
@@ -484,96 +510,167 @@ export default function UsersPage() {
               </div>
             </div>
 
-            <form onSubmit={onSaveUser} className="space-y-5 px-6 py-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Name</span>
-                  <input
-                    value={editForm.name}
-                    onChange={(e) =>
-                      setEditForm((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
-                    placeholder="Full name"
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Phone</span>
-                  <input
-                    value={editForm.phone}
-                    onChange={(e) =>
-                      setEditForm((prev) => ({ ...prev, phone: e.target.value }))
-                    }
-                    className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
-                    placeholder="Phone number"
-                  />
-                </label>
-              </div>
+            <form onSubmit={onSaveUser} className="space-y-6 px-6 py-6">
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <Users size={16} className="text-slate-500" />
+                  <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
+                    Profile Details
+                  </h3>
+                </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Email</span>
-                  <input
-                    type="email"
-                    value={editForm.email}
-                    onChange={(e) =>
-                      setEditForm((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                    className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-teal-500"
-                    placeholder="Email address"
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Role</span>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">Name</span>
+                    <input
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Full name"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">Phone</span>
+                    <input
+                      value={editForm.phone}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, phone: e.target.value }))
+                      }
+                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Phone number"
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">Email</span>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, email: e.target.value }))
+                      }
+                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-teal-500"
+                      placeholder="Email address"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">Role</span>
+                    <select
+                      value={editForm.role}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          role: e.target.value,
+                          department:
+                            e.target.value === "staff" ? prev.department : "",
+                        }))
+                      }
+                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                    >
+                      {ROLE_OPTIONS.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <label className="mt-4 space-y-2 block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Department
+                  </span>
                   <select
-                    value={editForm.role}
+                    value={editForm.department}
                     onChange={(e) =>
                       setEditForm((prev) => ({
                         ...prev,
-                        role: e.target.value,
-                        department:
-                          e.target.value === "staff" ? prev.department : "",
+                        department: e.target.value,
                       }))
                     }
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                    disabled={editForm.role !== "staff"}
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100"
                   >
-                    {ROLE_OPTIONS.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
+                    <option value="">Unassigned</option>
+                    {(Array.isArray(departments) ? departments : []).map(
+                      (department) => (
+                        <option key={department._id} value={department._id}>
+                          {department.name}
+                        </option>
+                      ),
+                    )}
                   </select>
+                  <p className="text-xs text-slate-400">
+                    Department assignment is only available for staff accounts.
+                  </p>
                 </label>
               </div>
 
-              <label className="space-y-2">
-                <span className="text-sm font-semibold text-slate-700">
-                  Department
-                </span>
-                <select
-                  value={editForm.department}
-                  onChange={(e) =>
-                    setEditForm((prev) => ({
-                      ...prev,
-                      department: e.target.value,
-                    }))
-                  }
-                  disabled={editForm.role !== "staff"}
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100"
-                >
-                  <option value="">Unassigned</option>
-                  {(Array.isArray(departments) ? departments : []).map(
-                    (department) => (
-                      <option key={department._id} value={department._id}>
-                        {department.name}
-                      </option>
-                    ),
-                  )}
-                </select>
-                <p className="text-xs text-slate-400">
-                  Department assignment is only available for staff accounts.
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <KeyRound size={16} className="text-slate-500" />
+                  <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
+                    Security
+                  </h3>
+                </div>
+
+                <div className="grid gap-4">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      New Password
+                    </span>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={editForm.password}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
+                        className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 pr-11 text-sm outline-none focus:border-slate-400"
+                        placeholder="Leave blank to keep current password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </label>
+
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Confirm Password
+                    </span>
+                    <input
+                      type="password"
+                      value={editForm.confirmPassword}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          confirmPassword: e.target.value,
+                        }))
+                      }
+                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Repeat new password"
+                    />
+                  </label>
+                </div>
+
+                <p className="mt-3 text-xs text-slate-400">
+                  Only fill the password fields if you want to reset this user&apos;s
+                  password.
                 </p>
-              </label>
+              </div>
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
@@ -591,12 +688,16 @@ export default function UsersPage() {
                 >
                   {savingUser ? (
                     <>
-                      <LottieLoader size={14} className="shrink-0" ariaLabel="Saving user" />
+                      <LottieLoader
+                        size={14}
+                        className="shrink-0"
+                        ariaLabel="Saving user"
+                      />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <Plus size={14} className="rotate-45" />
+                      <Save size={14} />
                       Save User
                     </>
                   )}

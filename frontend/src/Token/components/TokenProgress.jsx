@@ -1,73 +1,104 @@
-export default function TokenProgress({ status = "queue" }) {
-  const steps = [
-    { key: "registered", label: "Registered" },
-    { key: "queue", label: "In Queue" },
-    { key: "next", label: "Next Up" },
-    { key: "serving", label: "Serving" },
-  ];
+import { useMemo } from "react";
 
-  const currentIdx = steps.findIndex((s) => s.key === status);
-  const normalizedIdx = currentIdx === -1 ? 1 : currentIdx;
+/**
+ * TokenProgress — Clean Completion Bar
+ * Shows a percentage-based progress bar with a teal fill and a checkmark icon.
+ * Matches the clean MeroPaalo white design system.
+ *
+ * @param {string} status - One of: "queue", "next", "serving", "completed"
+ */
+export default function TokenProgress({ status = "queue" }) {
+  const { percent, label, isComplete } = useMemo(() => {
+    switch (status) {
+      case "serving":
+        return { percent: 100, label: "Completed", isComplete: true };
+      case "next":
+        return { percent: 75, label: "Almost there", isComplete: false };
+      case "queue":
+        return { percent: 35, label: "In Queue", isComplete: false };
+      default:
+        return { percent: 10, label: "Registered", isComplete: false };
+    }
+  }, [status]);
 
   return (
-    <div className="w-full py-4 md:py-6">
-      <div className="relative flex justify-between items-start max-w-2xl mx-auto px-4">
-        {/* Track — Ultra-Light Technical Line */}
-        <div className="absolute left-10 right-10 top-1.5 h-px bg-slate-100 z-0" />
-
-        {/* Progress — Solid Technical Fill */}
+    <div className="w-full bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      {/* Top Row: Icon + Percentage + Label */}
+      <div className="flex items-center gap-3 mb-4">
+        {/* Status Icon */}
         <div
-          className="absolute left-10 top-1.5 h-px bg-teal-500 z-0 transition-all duration-1000 ease-out"
-          style={{ width: `${(normalizedIdx / (steps.length - 1)) * 88}%` }}
-        />
-
-        {steps.map((step, idx) => {
-          const isCompleted = idx < normalizedIdx;
-          const isActive = idx === normalizedIdx;
-
-          return (
-            <div
-              key={step.key}
-              className="relative z-10 flex flex-col items-center gap-2.5"
+          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors duration-500 ${
+            isComplete
+              ? "bg-teal-500 text-white"
+              : "bg-teal-50 border border-teal-200 text-teal-600"
+          }`}
+        >
+          {isComplete ? (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {/* Technical Node Indicator */}
-              <div className="relative h-3 flex items-center justify-center">
-                <div
-                  className={`w-0.5 h-3 transition-all duration-500 ${
-                    isCompleted
-                      ? "bg-teal-500 scale-y-125"
-                      : isActive
-                        ? "bg-teal-600 scale-y-150 shadow-[0_0_8px_rgba(20,184,166,0.3)]"
-                        : "bg-slate-200"
-                  }`}
-                />
-                {isActive && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-teal-500/10 rounded-full animate-pulse-slow" />
-                )}
-              </div>
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="animate-spin-slow"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+          )}
+        </div>
 
-              {/* Label — High Precision Typography */}
-              <div className="flex flex-col items-center">
-                <span
-                  className={`text-[10px] font-bold tracking-widest font-display transition-colors duration-500 ${
-                    isActive
-                      ? "text-slate-900"
-                      : isCompleted
-                        ? "text-teal-600"
-                        : "text-slate-400"
-                  }`}
-                >
-                  {step.label}
-                </span>
-                <span
-                  className={`text-[8px] font-bold tabular-nums tracking-widest mt-0.5 ${
-                    isActive ? "text-slate-400" : "text-slate-300 opacity-0"
-                  }`}
-                >
-                  0{idx + 1}
-                </span>
-              </div>
-            </div>
+        {/* Percentage and Label */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">
+            {percent}%
+          </span>
+          <span className="text-sm font-semibold text-slate-500">{label}</span>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-1000 ease-out"
+          style={{
+            width: `${percent}%`,
+            background: isComplete
+              ? "#14b8a6"
+              : "linear-gradient(90deg, #14b8a6, #2dd4bf)",
+          }}
+        />
+      </div>
+
+      {/* Step indicators below bar */}
+      <div className="flex justify-between mt-3">
+        {["Registered", "In Queue", "Next Up", "Serving"].map((stepLabel, idx) => {
+          const stepPercent = [0, 35, 75, 100][idx];
+          const isDone = percent >= stepPercent;
+          return (
+            <span
+              key={stepLabel}
+              className={`text-[9px] font-bold uppercase tracking-wider transition-colors duration-500 ${
+                isDone ? "text-teal-600" : "text-slate-300"
+              }`}
+            >
+              {stepLabel}
+            </span>
           );
         })}
       </div>

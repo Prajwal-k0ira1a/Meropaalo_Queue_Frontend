@@ -8,7 +8,6 @@ import TokenMainInfo from "./components/TokenMainInfo";
 import TokenActions from "./components/TokenActions";
 import JoinFooter from "../Join/components/JoinFooter";
 import apiClient from "../api/apiClient";
-import LoadingScreen from "../components/LoadingScreen";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
 
@@ -128,21 +127,12 @@ export default function TokenPage() {
 
   const params = searchParams.toString() ? `?${searchParams.toString()}` : "";
 
-  if (isLoading && !tokenData) {
-    return (
-      <LoadingScreen
-        title="Loading token status"
-        subtitle="Checking your position in the queue and current serving details."
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-sans">
       <JoinHeader showTimer={true} />
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-2 md:py-4 flex flex-col gap-5 md:gap-6">
-        {/* Navigation Breadcrumb — Ultra-Compact */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-4 md:py-8 flex flex-col gap-5 md:gap-6">
+        {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <Link
             to={`/join${params}`}
@@ -169,17 +159,18 @@ export default function TokenPage() {
         </div>
 
         <div className="flex flex-col gap-5 md:gap-6">
+          {/* Progress Bar */}
           <TokenProgress status={tokenData?.status || "queue"} />
 
+          {/* Token Info Card */}
           <TokenMainInfo
             token={tokenData}
             queueInfo={queueInfo}
             isLoading={isLoading}
           />
 
-          <div className="pt-0.5">
-            <TokenActions />
-          </div>
+          {/* Actions */}
+        
         </div>
       </main>
 

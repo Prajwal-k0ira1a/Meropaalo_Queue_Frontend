@@ -5,7 +5,6 @@ import { Login } from "./Authentication/Login";
 import { SignUp } from "./Authentication/SignUp";
 import { ForgotPassword } from "./Authentication/ForgotPassword";
 import { JoinPage } from "./Join/JoinPage";
-import { CustomerLogin } from "./Join/CustomerLogin";
 import { QRGeneratorPage } from "./Join/QRGeneratorPage";
 import TokenPage from "./Token/TokenPage";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -66,7 +65,6 @@ function App() {
       <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/join" element={<JoinPage />} />
-      <Route path="/customer-login" element={<CustomerLogin />} />
       <Route path="/token-status" element={<TokenPage />} />
 
       <Route path="/qr-generator" element={<QRGeneratorPage />} />

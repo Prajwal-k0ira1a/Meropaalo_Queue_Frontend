@@ -1,17 +1,7 @@
 export default function TokenActions() {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6 py-4">
-      {/* Help text */}
-      <div className="flex items-center gap-4 text-slate-400 max-w-sm">
-        <div className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center shrink-0">
-          <InfoIcon />
-        </div>
-        <p className="text-[10px] font-bold text-slate-400/80 leading-tight uppercase tracking-tight font-display">
-          Please proceed to the lobby. You will be notified when your turn is
-          "Next Up".
-        </p>
-      </div>
-    </div>
+   <>
+   </>
   );
 }
 
