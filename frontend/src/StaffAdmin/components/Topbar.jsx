@@ -1,6 +1,7 @@
-import { Bell, HelpCircle, Menu, User } from "lucide-react";
+import { Bell, HelpCircle, Menu, QrCode, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export default function Topbar({ onMenuClick, user, department }) {
+export default function Topbar({ onMenuClick, user, department, departmentId }) {
   const displayName = user?.name || user?.email || "Staff User";
   
   // Format user role for display
@@ -21,7 +22,27 @@ export default function Topbar({ onMenuClick, user, department }) {
         <div className="hidden lg:block" />
 
         {/* Top-Right Profile & Settings Widgets */}
-        <div className="flex items-center gap-5 ml-auto">
+        <div className="ml-auto flex items-center gap-3 sm:gap-5">
+          {departmentId ? (
+            <Link
+              to={`/qr-generator?department=${encodeURIComponent(departmentId)}`}
+              className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-teal-700 transition-colors hover:bg-teal-100"
+              title="View department QR"
+            >
+              <QrCode size={14} className="shrink-0" />
+              <span className="hidden sm:inline">View QR</span>
+            </Link>
+          ) : (
+            <button
+              disabled
+              className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-slate-400"
+              title="No department assigned"
+            >
+              <QrCode size={14} className="shrink-0" />
+              <span className="hidden sm:inline">View QR</span>
+            </button>
+          )}
+
           {/* Notification Bell */}
           <button className="relative rounded-full p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors">
             <Bell size={20} className="stroke-[1.75]" />
@@ -57,4 +78,3 @@ export default function Topbar({ onMenuClick, user, department }) {
     </header>
   );
 }
-

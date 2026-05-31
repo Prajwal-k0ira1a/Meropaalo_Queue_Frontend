@@ -1,4 +1,4 @@
-import { LayoutGrid, ListOrdered, Settings, LogOut, Activity } from "lucide-react";
+import { LayoutGrid, ListOrdered, LogOut, Activity } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../Authentication/authService";
@@ -8,7 +8,6 @@ const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
   { id: "queue", label: "Queue List", icon: ListOrdered },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar({

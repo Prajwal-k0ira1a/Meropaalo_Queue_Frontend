@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Users, Activity, Clock, Play, RotateCcw, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
-import toast from "react-hot-toast";
+import { Search, Users, Activity, Clock, Play, RotateCcw, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 export default function QueueListPage({
   queueItems = [],
@@ -75,11 +74,6 @@ export default function QueueListPage({
     const sorted = [...queueItems].sort((a, b) => (b.waitMins || 0) - (a.waitMins || 0));
     return sorted[0]?.ticket?.replace("#", "") || "A-102";
   }, [queueItems]);
-
-  // Handler for row actions
-  const handleAction = async (actionName, item) => {
-    toast.success(`Action '${actionName}' triggered for token ${item.ticket}`);
-  };
 
   return (
     <div className="space-y-6">
@@ -313,14 +307,6 @@ export default function QueueListPage({
                             <RotateCcw size={13} className="stroke-[2.2]" />
                           </button>
 
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleAction("Cancel Ticket", item)}
-                            className="rounded-full p-2 border border-slate-100 text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-colors"
-                            title="Cancel Token"
-                          >
-                            <X size={13} className="stroke-[2.2]" />
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -378,4 +364,3 @@ export default function QueueListPage({
     </div>
   );
 }
-

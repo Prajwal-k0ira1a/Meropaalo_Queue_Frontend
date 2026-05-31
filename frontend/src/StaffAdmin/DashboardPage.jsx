@@ -4,7 +4,6 @@ import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import DashboardPage from "./pages/Dashboard";
 import QueueListPage from "./pages/QueueList";
-import SettingsPage from "./pages/Settings";
 import { staffApi } from "./api/staffApi";
 import { adminApi } from "../AdminConsole/api/adminApi";
 
@@ -382,7 +381,6 @@ export default function MeroPaaloStaffApp() {
   const pages = {
     dashboard: <DashboardPage {...pageProps} />,
     queue: <QueueListPage {...pageProps} />,
-    settings: <SettingsPage {...pageProps} />,
   };
 
   return (
@@ -413,6 +411,7 @@ export default function MeroPaaloStaffApp() {
           onMenuClick={() => setSidebarOpen(true)}
           user={authUser}
           department={departmentName || authUser?.department?.name}
+          departmentId={departmentId}
         />
 
         {/* Content Pane */}
@@ -430,4 +429,3 @@ export default function MeroPaaloStaffApp() {
     </div>
   );
 }
-

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { adminApi } from "../../api/adminApi";
 import toast from "react-hot-toast";
 import LottieLoader from "../../../components/LottieLoader";
@@ -239,6 +240,14 @@ export default function DepartmentsPage() {
                 </td>
                 <td className="py-3 text-right">
                   <div className="inline-flex gap-2">
+                    <Link
+                      to={`/qr-generator?department=${encodeURIComponent(
+                        department._id,
+                      )}`}
+                      className="rounded-lg border border-teal-300 px-3 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-50"
+                    >
+                      View QR
+                    </Link>
                     <button
                       onClick={() => onEdit(department)}
                       className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100"
