@@ -13,6 +13,7 @@ import { authService } from "../Authentication/authService";
 import LoadingScreen from "../components/LoadingScreen";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
+const JOIN_DEPARTMENT_STORAGE_KEY = "meropaalo_join_department";
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
 const readStoredAuthUser = () => {
@@ -33,6 +34,15 @@ const readStoredToken = () => {
   }
 };
 
+const readStoredDepartment = () => {
+  try {
+    const raw = localStorage.getItem(JOIN_DEPARTMENT_STORAGE_KEY);
+    return raw || "";
+  } catch {
+    return "";
+  }
+};
+
 const toLocalDateOnly = (value = new Date()) => {
   const y = value.getFullYear();
   const m = String(value.getMonth() + 1).padStart(2, "0");
@@ -42,11 +52,20 @@ const toLocalDateOnly = (value = new Date()) => {
 
 export const JoinPage = () => {
   const [searchParams] = useSearchParams();
-  const departmentId = searchParams.get("department") || "";
+  const queryDepartmentId = searchParams.get("department") || "";
   const takeTokenRequested = searchParams.get("takeToken") === "1";
 
   const persistedAuthUser = useMemo(() => readStoredAuthUser(), []);
   const persistedToken = useMemo(() => readStoredToken(), []);
+  const persistedDepartment = useMemo(() => readStoredDepartment(), []);
+
+  const departmentId =
+    queryDepartmentId ||
+    persistedDepartment ||
+    persistedToken?.departmentId ||
+    persistedAuthUser?.department?._id ||
+    persistedAuthUser?.department ||
+    "";
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -62,6 +81,16 @@ export const JoinPage = () => {
   const takeTokenEnabled = Boolean(
     takeTokenRequested || queueInfo?.takeTokenEnabled || next?.takeTokenEnabled,
   );
+
+  useEffect(() => {
+    if (queryDepartmentId) {
+      try {
+        localStorage.setItem(JOIN_DEPARTMENT_STORAGE_KEY, queryDepartmentId);
+      } catch {
+        // Ignore storage failures.
+      }
+    }
+  }, [queryDepartmentId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,6 +237,14 @@ export const JoinPage = () => {
       localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
       setJoinUser(user);
       setNext(nextStep);
+
+      if (nextStep?.department) {
+        try {
+          localStorage.setItem(JOIN_DEPARTMENT_STORAGE_KEY, nextStep.department);
+        } catch {
+          // Ignore storage failures.
+        }
+      }
 
       toast.dismiss(loadingToast);
       toast.success("Login successful");

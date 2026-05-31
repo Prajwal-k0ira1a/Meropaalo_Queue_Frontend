@@ -49,6 +49,7 @@ export const QRGeneratorPage = () => {
     if (!canGenerate) return "";
     const params = new URLSearchParams({
       department: department.trim(),
+      takeToken: "1",
     });
     return `${apiClient.defaults.baseURL}/qr?${params.toString()}`;
   }, [canGenerate, department]);
