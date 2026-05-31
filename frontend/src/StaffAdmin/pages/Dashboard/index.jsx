@@ -33,10 +33,16 @@ export default function DashboardPage({
     : "Counter 1";
 
   // Calculate mock or real next ticket number
-  const nextTicketNumber = upcomingQueue[0]?.ticket || "#---";
+  const hasWaitingTokens = upcomingQueue.length > 0;
+  const nextTicketNumber = hasWaitingTokens ? upcomingQueue[0]?.ticket : "Nobody waiting";
 
   // Calculate estimated wait
   const estWait = totalInQueue > 0 ? totalInQueue * 5 : 0;
+  const hasCurrentToken = Boolean(currentToken);
+  const ringStrokeOffset = hasCurrentToken ? "90" : "377";
+  const ringStrokeClass = hasCurrentToken
+    ? "stroke-[#10b981]"
+    : "stroke-slate-300";
 
   // Toggle active switch handler
   const handleActiveToggle = () => {
@@ -48,23 +54,23 @@ export default function DashboardPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Title Header */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-black text-[#0f172a]">{departmentName}</h1>
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">
+          <h1 className="text-2xl font-black text-[#0f172a]">{departmentName}</h1>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">
             Staff Queue Panel
           </p>
         </div>
         
         {/* Counter Selection Dropdown */}
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-slate-500 uppercase">Active Desk:</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-slate-500 uppercase">Active Desk:</span>
           <select
             value={selectedCounterId}
             onChange={(e) => onCounterChange(e.target.value)}
-            className="h-10 rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-slate-400"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-xs font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-slate-400"
           >
             <option value="">Select counter</option>
             {counters.map((counter) => (
@@ -77,61 +83,61 @@ export default function DashboardPage({
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
           {error}
         </div>
       )}
 
       {/* Main Grid: Live Status & Queue Controls */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Live Status Circular Progress Widget */}
-        <div className="lg:col-span-2 rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden min-h-[360px]">
+        <div className="lg:col-span-2 rounded-[20px] border border-slate-100 bg-white p-4.5 shadow-[0_4px_20px_rgb(0,0,0,0.01)] flex flex-col justify-between relative overflow-hidden min-h-[290px]">
           {/* Active status indicator */}
           <div className="flex items-center gap-2">
-            <span className={`h-2.5 w-2.5 rounded-full ${isQueueActive ? "bg-[#10b981] animate-pulse" : "bg-rose-500"}`} />
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
+            <span className={`h-2 w-2 rounded-full ${isQueueActive ? "bg-[#10b981] animate-pulse" : "bg-rose-500"}`} />
+            <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
               LIVE STATUS: {queueStatus.toUpperCase()}
             </span>
           </div>
 
           {/* Breathtaking Circular Ring Serving Widget */}
-          <div className="flex flex-col items-center justify-center my-6 flex-1">
-            <div className="relative flex items-center justify-center h-48 w-48">
+          <div className="flex flex-col items-center justify-center my-4 flex-1">
+            <div className="relative flex items-center justify-center h-36 w-36">
               {/* Outer SVG ring */}
               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
                 {/* Background track circle */}
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="82"
+                  cx="72"
+                  cy="72"
+                  r="60"
                   className="stroke-slate-100"
-                  strokeWidth="6"
+                  strokeWidth="5"
                   fill="transparent"
                 />
                 {/* Colorful dynamic active circle */}
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="82"
-                  className={`${isQueueActive ? "stroke-[#10b981]" : "stroke-slate-300"} transition-all duration-500`}
-                  strokeWidth="8"
-                  strokeDasharray="515"
-                  strokeDashoffset={isQueueActive ? "120" : "515"} // Mock progress
+                  cx="72"
+                  cy="72"
+                  r="60"
+                  className={`${ringStrokeClass} transition-all duration-500`}
+                  strokeWidth="6"
+                  strokeDasharray="377"
+                  strokeDashoffset={ringStrokeOffset}
                   strokeLinecap="round"
                   fill="transparent"
                 />
               </svg>
 
               {/* Central Text Details */}
-              <div className="text-center z-10 flex flex-col items-center px-4">
-                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">
+              <div className="text-center z-10 flex flex-col items-center px-3">
+                <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-slate-400">
                   CURRENTLY SERVING
                 </p>
-                <h2 className="text-4xl sm:text-5xl font-black text-[#0f172a] tracking-tight mt-1 leading-none">
-                  {currentToken?.ticket || "#---"}
+                <h2 className="text-3xl font-black text-[#0f172a] tracking-tight mt-0.5 leading-none">
+                  {currentToken?.ticket || "Nobody waiting"}
                 </h2>
                 {currentToken && (
-                  <span className="mt-2.5 px-3 py-1 rounded-full text-[9px] font-extrabold bg-emerald-50 text-[#10b981] border border-emerald-100 uppercase tracking-widest leading-none">
+                  <span className="mt-2 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold bg-emerald-50 text-[#10b981] border border-emerald-100 uppercase tracking-widest leading-none">
                     {currentToken.category || "VIP SERVICE"}
                   </span>
                 )}
@@ -140,28 +146,28 @@ export default function DashboardPage({
           </div>
 
           {/* Bottom Card Statistics row */}
-          <div className="grid grid-cols-3 border-t border-slate-100 pt-6 mt-2 text-center">
+          <div className="grid grid-cols-3 border-t border-slate-100 pt-4 mt-1 text-center">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
                 Estimated Wait
               </p>
-              <p className="text-base font-black text-slate-800 mt-1">
+              <p className="text-sm font-black text-slate-800 mt-0.5">
                 {estWait} mins
               </p>
             </div>
             <div className="border-x border-slate-100">
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
                 Tickets in Line
               </p>
-              <p className="text-base font-black text-slate-800 mt-1">
+              <p className="text-sm font-black text-slate-800 mt-0.5">
                 {padZero(totalInQueue)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
                 Avg. Service Time
               </p>
-              <p className="text-base font-black text-slate-800 mt-1">
+              <p className="text-sm font-black text-slate-800 mt-0.5">
                 {padZero(avgServiceMinutes)}:00
               </p>
             </div>
@@ -169,26 +175,26 @@ export default function DashboardPage({
         </div>
 
         {/* Queue Controls panel */}
-        <div className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between">
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Queue Controls</h2>
+        <div className="rounded-[20px] border border-slate-100 bg-white p-4.5 shadow-[0_4px_20px_rgb(0,0,0,0.01)] flex flex-col justify-between">
+          <div className="space-y-3">
+            <h2 className="text-base font-bold text-slate-800 tracking-tight">Queue Controls</h2>
             
             {/* Toggle Switch */}
-            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50">
-              <div className="flex items-center gap-3">
-                <span className={`h-2.5 w-2.5 rounded-full ${isQueueActive ? "bg-[#10b981]" : "bg-slate-300"}`} />
-                <span className="text-sm font-semibold text-slate-700">Queue Active</span>
+            <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-3 transition-all hover:bg-slate-50">
+              <div className="flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${isQueueActive ? "bg-[#10b981]" : "bg-slate-300"}`} />
+                <span className="text-xs font-semibold text-slate-700">Queue Active</span>
               </div>
               <button
                 onClick={handleActiveToggle}
                 disabled={actionLoading}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   isQueueActive ? "bg-[#10b981]" : "bg-slate-200"
                 }`}
               >
                 <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    isQueueActive ? "translate-x-5" : "translate-x-0"
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    isQueueActive ? "translate-x-4" : "translate-x-0"
                   }`}
                 />
               </button>
@@ -198,11 +204,11 @@ export default function DashboardPage({
             <button
               onClick={onCloseQueue}
               disabled={actionLoading || !isQueueActive}
-              className="flex w-full items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 text-left transition-all hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400 group"
+              className="flex w-full items-center justify-between rounded-xl border border-slate-100 bg-white p-3 text-left transition-all hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400 group"
             >
-              <div className="flex items-center gap-3">
-                <X size={16} className="text-rose-500 stroke-[2.5]" />
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-rose-600">Close Queue</span>
+              <div className="flex items-center gap-2.5">
+                <X size={14} className="text-rose-500 stroke-[2.5]" />
+                <span className="text-xs font-semibold text-slate-700 group-hover:text-rose-600">Close Queue</span>
               </div>
             </button>
 
@@ -210,21 +216,22 @@ export default function DashboardPage({
             <button
               onClick={onResetQueue}
               disabled={actionLoading}
-              className="flex w-full items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 text-left transition-all hover:bg-slate-50 disabled:opacity-50 group"
+              className="flex w-full items-center justify-between rounded-xl border border-slate-100 bg-white p-3 text-left transition-all hover:bg-slate-50 disabled:opacity-50 group"
             >
-              <div className="flex items-center gap-3">
-                <RotateCcw size={16} className="text-slate-500 group-hover:text-slate-800" />
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-800">Regenerate Queue</span>
+              <div className="flex items-center gap-2.5">
+                <RotateCcw size={14} className="text-slate-500 group-hover:text-slate-800" />
+                <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-800">Regenerate Queue</span>
               </div>
             </button>
+
           </div>
 
           {/* Operator Tip Card */}
-          <div className="mt-6 rounded-2xl border border-slate-100 bg-sky-50/50 p-4 flex gap-3">
-            <AlertCircle size={18} className="text-sky-500 shrink-0 mt-0.5" />
-            <div className="text-xs">
+          <div className="mt-4 rounded-xl border border-slate-100 bg-sky-50/50 p-3 flex gap-2">
+            <AlertCircle size={15} className="text-sky-500 shrink-0 mt-0.5" />
+            <div className="text-[11px]">
               <p className="font-extrabold uppercase tracking-wider text-sky-700">OPERATOR TIP</p>
-              <p className="mt-1 text-sky-600 leading-relaxed font-medium">
+              <p className="mt-0.5 text-sky-600 leading-relaxed font-medium">
                 Consider activating secondary counters if wait times exceed 15 minutes.
               </p>
             </div>
@@ -233,19 +240,21 @@ export default function DashboardPage({
       </div>
 
       {/* Middle Grid: Quick Actions (Serve Next, Complete, Recall) */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
         {/* Serve Next Card */}
         <button
           onClick={onServeNext}
           disabled={actionLoading || !selectedCounterId}
-          className="rounded-[24px] bg-[#1e293b] p-6 text-white text-left shadow-md transition-all hover:bg-[#27354a] hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden"
+          className="rounded-[20px] bg-[#1e293b] p-4.5 text-white text-left shadow-sm transition-all hover:bg-[#27354a] hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden cursor-pointer"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white mb-6">
-            <Play size={16} className="fill-white translate-x-0.5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white mb-4">
+            <Play size={14} className="fill-white translate-x-0.5" />
           </div>
-          <h3 className="text-xl font-bold tracking-tight">Serve Next</h3>
-          <p className="mt-1.5 text-xs text-slate-300 leading-normal font-medium">
-            Call ticket {nextTicketNumber} to {activeCounterName}
+          <h3 className="text-lg font-bold tracking-tight">Serve Next</h3>
+          <p className="mt-1 text-[11px] text-slate-300 leading-normal font-medium">
+            {hasWaitingTokens
+              ? `Call ticket ${nextTicketNumber} to ${activeCounterName}`
+              : "Nobody is waiting right now"}
           </p>
         </button>
 
@@ -253,13 +262,13 @@ export default function DashboardPage({
         <button
           onClick={onCompleteCurrent}
           disabled={actionLoading || !currentToken || !selectedCounterId}
-          className="rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all hover:bg-slate-50 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden"
+          className="rounded-[20px] border border-slate-100 bg-white p-4.5 text-left shadow-[0_4px_20px_rgb(0,0,0,0.01)] transition-all hover:bg-slate-50 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden cursor-pointer"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-[#10b981] mb-6">
-            <Check size={18} className="stroke-[2.5]" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-[#10b981] mb-4">
+            <Check size={16} className="stroke-[2.5]" />
           </div>
-          <h3 className="text-xl font-bold tracking-tight text-slate-800">Complete</h3>
-          <p className="mt-1.5 text-xs text-slate-400 leading-normal font-medium">
+          <h3 className="text-lg font-bold tracking-tight text-slate-800">Complete</h3>
+          <p className="mt-1 text-[11px] text-slate-400 leading-normal font-medium">
             Mark current ticket as served
           </p>
         </button>
@@ -268,33 +277,35 @@ export default function DashboardPage({
         <button
           onClick={onCallCurrent}
           disabled={actionLoading || !currentToken || !selectedCounterId}
-          className="rounded-[24px] bg-[#f97316] p-6 text-white text-left shadow-md transition-all hover:bg-[#ea580c] hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden"
+          className="rounded-[20px] bg-[#f97316] p-4.5 text-white text-left shadow-sm transition-all hover:bg-[#ea580c] hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed group relative overflow-hidden cursor-pointer"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white mb-6">
-            <RotateCcw size={16} className="stroke-[2.5]" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white mb-4">
+            <RotateCcw size={14} className="stroke-[2.5]" />
           </div>
-          <h3 className="text-xl font-bold tracking-tight">Recall</h3>
-          <p className="mt-1.5 text-xs text-slate-100 leading-normal font-medium">
-            Repeat announcement for {currentToken?.ticket || "#---"}
+          <h3 className="text-lg font-bold tracking-tight">Recall</h3>
+          <p className="mt-1 text-[11px] text-slate-100 leading-normal font-medium">
+            {currentToken
+              ? `Repeat announcement for ${currentToken.ticket}`
+              : "Nobody is currently waiting"}
           </p>
         </button>
       </div>
 
       {/* Bottom Grid: Upcoming Queue & Today's Activity */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Upcoming Queue List */}
-        <div className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="rounded-[20px] border border-slate-100 bg-white p-4.5 shadow-[0_4px_20px_rgb(0,0,0,0.01)] flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-slate-800 tracking-tight">Upcoming Queue</h3>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-600 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-slate-800 tracking-tight">Upcoming Queue</h3>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-100 text-slate-600 uppercase tracking-wider">
                 {totalInQueue} TOTAL
               </span>
             </div>
 
-            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
               {upcomingQueue.length === 0 ? (
-                <div className="py-10 text-center text-sm text-slate-400 font-medium">
+                <div className="py-8 text-center text-xs text-slate-400 font-medium">
                   No upcoming tokens in queue.
                 </div>
               ) : (
@@ -303,12 +314,12 @@ export default function DashboardPage({
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-2xl border border-slate-50 bg-slate-50/50 p-4 transition-all hover:bg-slate-50"
+                      className="flex items-center justify-between rounded-xl border border-slate-50 bg-slate-50/50 p-3 transition-all hover:bg-slate-50"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         {/* Custom index badge */}
                         <div
-                          className={`flex h-10 w-12 items-center justify-center rounded-xl font-black text-sm tracking-tight ${
+                          className={`flex h-8 w-10 items-center justify-center rounded-lg font-black text-xs tracking-tight ${
                             isVip
                               ? "bg-emerald-50 text-[#10b981] border border-emerald-100"
                               : "bg-blue-50 text-blue-600 border border-blue-100"
@@ -317,17 +328,17 @@ export default function DashboardPage({
                           {item.ticket}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-800 leading-tight">
+                          <p className="text-xs font-bold text-slate-800 leading-tight">
                             {item.name}
                           </p>
-                          <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+                          <p className="text-[9px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">
                             {isVip ? "VIP Consultation" : "General Inquiry"}
                           </p>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-bold text-slate-500">
+                        <span className="text-[11px] font-bold text-slate-500">
                           Wait: {item.wait}
                         </span>
                       </div>
@@ -340,19 +351,19 @@ export default function DashboardPage({
         </div>
 
         {/* Today's Activity Custom Line Chart */}
-        <div className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between min-h-[360px]">
+        <div className="rounded-[20px] border border-slate-100 bg-white p-4.5 shadow-[0_4px_20px_rgb(0,0,0,0.01)] flex flex-col justify-between min-h-[290px]">
           <div>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-slate-800 tracking-tight">Today's Activity</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-slate-800 tracking-tight">Today's Activity</h3>
               
-              <button className="flex items-center gap-1.5 rounded-xl border border-slate-100 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider transition-all hover:bg-slate-50">
+              <button className="flex items-center gap-1.5 rounded-lg border border-slate-100 bg-slate-50/50 px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider transition-all hover:bg-slate-50">
                 <span>Last 6 Hours</span>
-                <ChevronDown size={12} className="stroke-[2.5]" />
+                <ChevronDown size={11} className="stroke-[2.5]" />
               </button>
             </div>
 
             {/* Custom SVG Line Chart */}
-            <div className="relative w-full h-48 mt-4">
+            <div className="relative w-full h-36 mt-2">
               <svg className="w-full h-full" viewBox="0 0 500 150">
                 {/* Gradients */}
                 <defs>
@@ -401,16 +412,16 @@ export default function DashboardPage({
           </div>
 
           {/* Chart Legends */}
-          <div className="flex items-center justify-start gap-6 border-t border-slate-100 pt-4 mt-2">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[#0f172a]" />
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+          <div className="flex items-center justify-start gap-4 border-t border-slate-100 pt-3 mt-1">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0f172a]" />
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">
                 Peak Hour (11:00)
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-cyan-100 border border-cyan-400" />
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-cyan-100 border border-cyan-400" />
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">
                 Average Traffic
               </span>
             </div>
@@ -420,4 +431,3 @@ export default function DashboardPage({
     </div>
   );
 }
-

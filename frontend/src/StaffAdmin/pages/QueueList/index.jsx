@@ -12,6 +12,8 @@ export default function QueueListPage({
   onCounterChange,
   onServeNext,
   onCallCurrent,
+  onServeToken,
+  onCallToken,
 }) {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -287,21 +289,21 @@ export default function QueueListPage({
                       {/* Actions */}
                       <td className="py-4 pl-3 pr-4 text-right">
                         <div className="flex items-center justify-end gap-2.5">
-                          {/* Serve Next Card Button */}
+                          {/* Serve Token Button */}
                           <button
-                            onClick={onServeNext}
+                            onClick={() => onServeToken(item.id)}
                             disabled={!selectedCounterId}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-[#1e293b] px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-[#2e3f57] disabled:opacity-30"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-[#1e293b] px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-[#2e3f57] disabled:opacity-30 cursor-pointer"
                           >
                             <Play size={8} className="fill-white translate-x-px" />
-                            <span>Serve Next</span>
+                            <span>Serve</span>
                           </button>
 
                           {/* Recall Button */}
                           <button
-                            onClick={onCallCurrent}
+                            onClick={() => onCallToken(item.id)}
                             disabled={!selectedCounterId}
-                            className="rounded-full p-2 border border-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors disabled:opacity-30"
+                            className="rounded-full p-2 border border-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors disabled:opacity-30 cursor-pointer"
                             title="Recall announcements"
                           >
                             <RotateCcw size={13} className="stroke-[2.2]" />

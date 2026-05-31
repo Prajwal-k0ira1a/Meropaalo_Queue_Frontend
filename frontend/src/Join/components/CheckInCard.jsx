@@ -42,7 +42,11 @@ export default function CheckInCard({
         >
           {isJoining ? (
             <>
-              <LottieLoader size={24} className="shrink-0" ariaLabel="Joining queue" />
+              <LottieLoader
+                size={24}
+                className="shrink-0"
+                ariaLabel="Joining queue"
+              />
               Processing...
             </>
           ) : (

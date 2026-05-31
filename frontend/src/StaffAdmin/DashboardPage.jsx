@@ -312,6 +312,22 @@ export default function MeroPaaloStaffApp() {
       await staffApi.resetQueueDay(todayQueueDay._id);
     }, "Failed to regenerate queue");
 
+  const onServeToken = (tokenId) =>
+    runAction(async () => {
+      if (!selectedCounterId) {
+        throw new Error("Select an active counter first");
+      }
+      await staffApi.serveToken(tokenId, selectedCounterId);
+    }, "Failed to serve token");
+
+  const onCallToken = (tokenId) =>
+    runAction(async () => {
+      if (!selectedCounterId) {
+        throw new Error("Select an active counter first");
+      }
+      await staffApi.callToken(tokenId, selectedCounterId);
+    }, "Failed to recall token");
+
   const onActivateQueue = () =>
     runAction(async () => {
       if (!departmentId) {
@@ -373,6 +389,8 @@ export default function MeroPaaloStaffApp() {
     onCallCurrent,
     onCompleteCurrent,
     onResetQueue,
+    onServeToken,
+    onCallToken,
     onActivateQueue,
     onCloseQueue,
     onRefresh: loadData,

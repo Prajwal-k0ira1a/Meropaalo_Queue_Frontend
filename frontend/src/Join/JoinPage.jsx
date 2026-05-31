@@ -14,6 +14,7 @@ import LoadingScreen from "../components/LoadingScreen";
 
 const TOKEN_STORAGE_KEY = "meropaalo_customer_token";
 const JOIN_DEPARTMENT_STORAGE_KEY = "meropaalo_join_department";
+const JOIN_TAKE_TOKEN_STORAGE_KEY = "meropaalo_join_take_token";
 const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
 const readStoredAuthUser = () => {
@@ -43,6 +44,14 @@ const readStoredDepartment = () => {
   }
 };
 
+const readStoredTakeTokenFlag = () => {
+  try {
+    return localStorage.getItem(JOIN_TAKE_TOKEN_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
 const toLocalDateOnly = (value = new Date()) => {
   const y = value.getFullYear();
   const m = String(value.getMonth() + 1).padStart(2, "0");
@@ -58,6 +67,7 @@ export const JoinPage = () => {
   const persistedAuthUser = useMemo(() => readStoredAuthUser(), []);
   const persistedToken = useMemo(() => readStoredToken(), []);
   const persistedDepartment = useMemo(() => readStoredDepartment(), []);
+  const persistedTakeToken = useMemo(() => readStoredTakeTokenFlag(), []);
 
   const departmentId =
     queryDepartmentId ||
@@ -79,7 +89,11 @@ export const JoinPage = () => {
 
   const queueStatus = queueInfo?.queueStatus || null;
   const takeTokenEnabled = Boolean(
-    takeTokenRequested || queueInfo?.takeTokenEnabled || next?.takeTokenEnabled,
+    takeTokenRequested ||
+      persistedTakeToken ||
+      queueInfo?.takeTokenEnabled ||
+      next?.takeTokenEnabled ||
+      joinUser,
   );
 
   useEffect(() => {
@@ -91,6 +105,19 @@ export const JoinPage = () => {
       }
     }
   }, [queryDepartmentId]);
+
+  useEffect(() => {
+    if (searchParams.has("takeToken")) {
+      try {
+        localStorage.setItem(
+          JOIN_TAKE_TOKEN_STORAGE_KEY,
+          takeTokenRequested ? "1" : "0",
+        );
+      } catch {
+        // Ignore storage failures.
+      }
+    }
+  }, [searchParams, takeTokenRequested]);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,33 +213,6 @@ export const JoinPage = () => {
   const canJoin = queueOpen && isAuthenticated && takeTokenEnabled && !isLoading;
   const showLogin = !isAuthenticated;
 
-  const joinQueueState = useMemo(
-    () => ({
-      departmentId: departmentId || null,
-      isAuthenticated,
-      queueStatus,
-      takeTokenEnabled,
-      next,
-      user: joinUser
-        ? {
-            id: joinUser.id || joinUser._id || "",
-            name: joinUser.name || "",
-            email: joinUser.email || "",
-            role: joinUser.role || "customer",
-            department: joinUser.department || null,
-          }
-        : null,
-      token: token
-        ? {
-            id: token.id || token._id || "",
-            tokenNumber: token.tokenNumber || "",
-            status: token.status || "waiting",
-          }
-        : null,
-    }),
-    [departmentId, isAuthenticated, joinUser, next, queueStatus, takeTokenEnabled, token],
-  );
-
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!departmentId || isSigningIn) return;
@@ -241,6 +241,13 @@ export const JoinPage = () => {
       if (nextStep?.department) {
         try {
           localStorage.setItem(JOIN_DEPARTMENT_STORAGE_KEY, nextStep.department);
+        } catch {
+          // Ignore storage failures.
+        }
+      }
+      if (nextStep?.takeTokenEnabled) {
+        try {
+          localStorage.setItem(JOIN_TAKE_TOKEN_STORAGE_KEY, "1");
         } catch {
           // Ignore storage failures.
         }
@@ -293,6 +300,11 @@ export const JoinPage = () => {
           tokenNumber: normalizedToken.tokenNumber,
         }),
       );
+      try {
+        localStorage.setItem(JOIN_TAKE_TOKEN_STORAGE_KEY, "0");
+      } catch {
+        // Ignore storage failures.
+      }
 
       toast.dismiss(loadingToast);
       toast.success("Token issued successfully");
@@ -317,6 +329,7 @@ export const JoinPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+
       <JoinHeader showLogout={isAuthenticated || Boolean(persistedAuthUser)} />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-3 md:py-5 flex flex-col gap-6 md:gap-8">
@@ -387,12 +400,6 @@ export const JoinPage = () => {
               customerName={joinUser?.name || joinUser?.email || null}
             />
           )}
-        </div>
-
-        <div className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-          {joinQueueState.takeTokenEnabled
-            ? "Take My Token is enabled for this session"
-            : "Take My Token will unlock after validation"}
         </div>
       </main>
 
