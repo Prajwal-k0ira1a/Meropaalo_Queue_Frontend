@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 
 export default function TokenSuccessCard({ token, customerName }) {
-  const trackingUrl = `/token-status?tokenId=${encodeURIComponent(token._id)}&department=${encodeURIComponent(token.department || "")}&tokenNumber=${encodeURIComponent(token.tokenNumber)}`;
+  const tokenId = token?.id || token?._id || "";
+  const trackingUrl = `/token-status?tokenId=${encodeURIComponent(tokenId)}&department=${encodeURIComponent(token.department || "")}&tokenNumber=${encodeURIComponent(token.tokenNumber)}`;
 
   return (
     <div className="w-full max-w-sm animate-in fade-in zoom-in duration-500">
@@ -52,7 +53,7 @@ export default function TokenSuccessCard({ token, customerName }) {
           </Link>
 
           <p className="mt-8 text-[9px] text-slate-300 font-bold uppercase tracking-[0.2em] font-display">
-            System ID: {token._id.slice(-8).toUpperCase()}
+            System ID: {tokenId.slice(-8).toUpperCase()}
           </p>
         </div>
       </div>

@@ -1,15 +1,19 @@
 import { authApi } from "../api";
 
 export const authService = {
-  async login(email, password) {
-    const response = await authApi.login({ email, password });
-    console.log("Login API Response:", response);
+  async login(email, password, department) {
+    const response = await authApi.login({
+      email,
+      password,
+      ...(department ? { department } : {}),
+    });
 
-    // Handle different response structures
-    if (response?.user) {
-      return response.user;
-    } else if (response) {
+    if (response?.user || response?.next) {
       return response;
+    }
+
+    if (response?.data?.user || response?.data?.next) {
+      return response.data;
     }
 
     throw new Error("Invalid response structure from login API");

@@ -44,9 +44,6 @@ export const Login = () => {
     [returnTo],
   );
   const joinDepartment = departmentFromQuery || departmentFromReturnTo;
-  const nextJoinPath = joinDepartment
-    ? `/join?department=${encodeURIComponent(joinDepartment)}`
-    : "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +55,13 @@ export const Login = () => {
     setIsLoading(true);
     const loadingToast = toast.loading("Logging in...");
     try {
-      const user = await authService.login(formData.email, formData.password);
+      const response = await authService.login(
+        formData.email,
+        formData.password,
+        joinDepartment || undefined,
+      );
+      const user = response?.user || response;
+      const redirectUrl = response?.next?.redirectUrl || "";
 
       if (!user) {
         throw new Error("Invalid login response. Please try again.");
@@ -67,14 +70,10 @@ export const Login = () => {
       localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
       toast.dismiss(loadingToast);
       toast.success(`Welcome back, ${user.name || user.email || "User"}!`);
-      if (returnTo) {
-        if (returnTo.startsWith("/join") && nextJoinPath) {
-          navigate(nextJoinPath, { replace: true });
-        } else {
-          navigate(returnTo, { replace: true });
-        }
-      } else if (nextJoinPath) {
-        navigate(nextJoinPath, { replace: true });
+      if (redirectUrl) {
+        window.location.assign(redirectUrl);
+      } else if (returnTo) {
+        navigate(returnTo, { replace: true });
       } else if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role === "staff") {
