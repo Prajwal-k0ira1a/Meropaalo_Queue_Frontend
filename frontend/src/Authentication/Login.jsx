@@ -16,6 +16,17 @@ const getLoginErrorMessage = (error) =>
   error?.message ||
   "Login failed. Please try again.";
 
+const getDepartmentFromJoinReturnTo = (returnTo) => {
+  if (!returnTo.startsWith("/join")) return "";
+
+  try {
+    const queryString = returnTo.includes("?") ? returnTo.split("?")[1] : "";
+    return new URLSearchParams(queryString).get("department") || "";
+  } catch {
+    return "";
+  }
+};
+
 export const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -28,8 +39,13 @@ export const Login = () => {
     () => searchParams.get("department") || "",
     [searchParams],
   );
-  const nextJoinPath = departmentFromQuery
-    ? `/join?department=${encodeURIComponent(departmentFromQuery)}`
+  const departmentFromReturnTo = useMemo(
+    () => getDepartmentFromJoinReturnTo(returnTo),
+    [returnTo],
+  );
+  const joinDepartment = departmentFromQuery || departmentFromReturnTo;
+  const nextJoinPath = joinDepartment
+    ? `/join?department=${encodeURIComponent(joinDepartment)}`
     : "";
 
   const handleChange = (e) => {
@@ -52,7 +68,11 @@ export const Login = () => {
       toast.dismiss(loadingToast);
       toast.success(`Welcome back, ${user.name || user.email || "User"}!`);
       if (returnTo) {
-        navigate(returnTo, { replace: true });
+        if (returnTo.startsWith("/join") && nextJoinPath) {
+          navigate(nextJoinPath, { replace: true });
+        } else {
+          navigate(returnTo, { replace: true });
+        }
       } else if (nextJoinPath) {
         navigate(nextJoinPath, { replace: true });
       } else if (user.role === "admin") {

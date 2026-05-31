@@ -1,5 +1,5 @@
 import { Link, useSearchParams, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LogOut, Menu, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { authService } from "../../Authentication/authService";
@@ -17,6 +17,14 @@ export default function JoinHeader({
   const params = searchParams.toString() ? `?${searchParams.toString()}` : "";
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const persistedToken = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(CUSTOMER_TOKEN_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // Timer logic for tracking consistency
   const [countdown, setCountdown] = useState(30);
@@ -30,10 +38,18 @@ export default function JoinHeader({
 
   const isJoinActive = location.pathname === "/join";
   const isTokenActive = location.pathname === "/token-status";
+  const liveTrackingTo = persistedToken?.tokenId
+    ? `/token-status?tokenId=${encodeURIComponent(persistedToken.tokenId)}&department=${encodeURIComponent(persistedToken.departmentId || "")}&tokenNumber=${encodeURIComponent(persistedToken.tokenNumber || "")}`
+    : "";
 
   const navLinks = [
     { to: `/join${params}`, label: "Queue Dashboard", isActive: isJoinActive },
-    { to: "/token-status", label: "Live Tracking", isActive: isTokenActive },
+    {
+      to: liveTrackingTo,
+      label: "Live Tracking",
+      isActive: isTokenActive,
+      disabled: !liveTrackingTo,
+    },
   ];
 
   const handleLogout = async () => {
@@ -81,12 +97,23 @@ export default function JoinHeader({
           {showNav && (
             <nav className="hidden md:flex items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
               {navLinks.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  isActive={link.isActive}
-                  label={link.label}
-                />
+                link.disabled ? (
+                  <button
+                    key={link.label}
+                    type="button"
+                    disabled
+                    className="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300 text-slate-300 cursor-not-allowed"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    isActive={link.isActive}
+                    label={link.label}
+                  />
+                )
               ))}
             </nav>
           )}
@@ -119,10 +146,10 @@ export default function JoinHeader({
             )}
 
               {/* Mobile Toggle */}
-              {showNav && (
-                <button
-                  className="md:hidden w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
-                  onClick={() => setMenuOpen((v) => !v)}
+          {showNav && (
+            <button
+              className="md:hidden w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+              onClick={() => setMenuOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
                   {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -137,27 +164,36 @@ export default function JoinHeader({
       {menuOpen && showNav && (
         <div className="md:hidden bg-white border-t border-slate-100 px-6 py-4 flex flex-col gap-2 animate-in slide-in-from-top duration-300">
           {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMenuOpen(false)}
-              className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-between group transition-all ${
-                link.isActive
-                  ? "bg-teal-50 text-teal-600"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
-              }`}
-            >
-              {link.label}
-              <svg
-                className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${link.isActive ? "text-teal-500" : "text-slate-300"}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
+            link.disabled ? (
+              <div
+                key={link.label}
+                className="px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-between text-slate-300 bg-slate-50 cursor-not-allowed"
               >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </Link>
+                {link.label}
+              </div>
+            ) : (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMenuOpen(false)}
+                className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-between group transition-all ${
+                  link.isActive
+                    ? "bg-teal-50 text-teal-600"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                }`}
+              >
+                {link.label}
+                <svg
+                  className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${link.isActive ? "text-teal-500" : "text-slate-300"}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </Link>
+            )
           ))}
 
           {showTimer && (
