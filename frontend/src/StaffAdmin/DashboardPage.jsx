@@ -4,8 +4,7 @@ import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import DashboardPage from "./pages/Dashboard";
 import QueueListPage from "./pages/QueueList";
-import ServiceHistoryPage from "./pages/ServiceHistory";
-import QueueLifecycleActions from "../components/QueueLifecycleActions";
+import SettingsPage from "./pages/Settings";
 import { staffApi } from "./api/staffApi";
 import { adminApi } from "../AdminConsole/api/adminApi";
 
@@ -355,16 +354,19 @@ export default function MeroPaaloStaffApp() {
     historyRecords,
     currentToken: currentToken
       ? {
+          id: currentToken._id,
           ticket: `#${currentToken.tokenNumber}`,
           name: currentToken.customer?.name || "Walk-in Customer",
           waitMins: minutesSince(currentToken.issuedAt),
           status: currentToken.status,
+          category: currentToken.serviceCategory?.name || currentToken.category || "VIP Service", // Default mockup value
         }
       : null,
     servedToday: completedTokens.length,
     avgServiceMinutes,
     totalInQueue: waitingTokens.length,
     departmentId,
+    departmentName: departmentName || authUser?.department?.name || "MeroPaalo",
     selectedCounterId,
     counters,
     onCounterChange: setSelectedCounterId,
@@ -380,78 +382,52 @@ export default function MeroPaaloStaffApp() {
   const pages = {
     dashboard: <DashboardPage {...pageProps} />,
     queue: <QueueListPage {...pageProps} />,
-    history: <ServiceHistoryPage {...pageProps} />,
+    settings: <SettingsPage {...pageProps} />,
   };
 
   return (
-    <div className="flex min-h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(45,212,191,0.12),_transparent_25%),linear-gradient(to_bottom,_#f8fafc,_#eef2ff)] font-sans">
-      <Topbar
-        onMenuClick={() => setSidebarOpen(true)}
-        user={authUser}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc] font-sans">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        activeNav={activeNav}
+        setActiveNav={(nav) => {
+          setActiveNav(nav);
+          setSidebarOpen(false);
+        }}
+        sidebarOpen={sidebarOpen}
+        hasError={Boolean(error)}
         department={departmentName || authUser?.department?.name}
-        departmentId={departmentId}
       />
 
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <div className="flex min-h-0 flex-1">
-        <Sidebar
-          activeNav={activeNav}
-          setActiveNav={(nav) => {
-            setActiveNav(nav);
-            setSidebarOpen(false);
-          }}
-          sidebarOpen={sidebarOpen}
-          hasError={Boolean(error)}
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Transparent top header */}
+        <Topbar
+          onMenuClick={() => setSidebarOpen(true)}
+          user={authUser}
           department={departmentName || authUser?.department?.name}
         />
 
-        <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-6">
+        {/* Content Pane */}
+        <main className="flex-1 overflow-y-auto px-6 pb-6">
           {!departmentId ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
               Your account has no department assignment. Ask an admin to assign
               your staff account to a department.
             </div>
           ) : (
-            <>
-              <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-900">
-                    Dashboard
-                  </h1>
-                  <p className="mt-1 text-sm text-slate-600">
-                    <span className="font-semibold text-teal-700">
-                      {departmentName || authUser?.department?.name || "Department"}
-                    </span>
-                    {" | "}
-                    <span>{authUser?.name || "Staff"}</span>
-                  </p>
-                </div>
-              </div>
-              <div className="mb-5">
-                <QueueLifecycleActions
-                  queueStatus={queueStatus}
-                  loading={loading || actionLoading}
-                  onRefresh={loadData}
-                  onActivateQueue={onActivateQueue}
-                  onCloseQueue={onCloseQueue}
-                  onResetQueue={onResetQueue}
-                />
-              </div>
-              {pages[activeNav]}
-            </>
+            pages[activeNav]
           )}
         </main>
       </div>
-
-      <footer className="border-t border-slate-200 bg-white py-3 text-center text-xs text-slate-400 sm:py-4">
-        (c) 2024 MeroPaalo. All rights reserved.
-      </footer>
     </div>
   );
 }
+

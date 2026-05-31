@@ -1,9 +1,14 @@
-import { Activity, LayoutGrid, ListOrdered, History, Sparkles } from "lucide-react";
+import { LayoutGrid, ListOrdered, Settings, LogOut, Activity } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../../Authentication/authService";
+
+const AUTH_USER_STORAGE_KEY = "meropaalo_auth_user";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
   { id: "queue", label: "Queue List", icon: ListOrdered },
-  { id: "history", label: "Service History", icon: History },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar({
@@ -13,71 +18,87 @@ export default function Sidebar({
   hasError = false,
   department,
 }) {
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const onLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await authService.logout();
+    } catch {
+      // Ignore API logout failures and continue local cleanup.
+    } finally {
+      localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+      navigate("/login", { replace: true });
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-72 shrink-0 transform border-r border-slate-200 bg-white text-slate-900 transition-transform duration-200 lg:static lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform border-r border-slate-100 bg-white text-slate-900 transition-transform duration-200 lg:static lg:translate-x-0 ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex h-full flex-col p-4">
-        <div className="rounded-[26px] border border-slate-200 bg-slate-50 p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500 text-white">
-              <Sparkles size={18} />
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-700">
-                MeroPaalo
-              </p>
-              <h1 className="text-lg font-bold tracking-tight">Staff Desk</h1>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-              Assigned Department
-            </p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">
-              {department || "Not assigned"}
-            </p>
-          </div>
+      <div className="flex h-full flex-col p-6">
+        {/* Brand Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-black tracking-tight text-[#0f172a]">
+            MeroPaalo
+          </h1>
+          <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            {department ? `${department} Manager` : "Queue Manager"}
+          </p>
         </div>
 
-        <div className="mt-5 flex min-h-0 flex-1 flex-col justify-between gap-4">
-          <nav className="space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeNav === item.id;
+        {/* Navigation Items */}
+        <nav className="flex-1 space-y-1.5">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeNav === item.id;
 
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveNav(item.id)}
-                  className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition-colors ${
-                    isActive
-                      ? "bg-teal-500 text-white shadow-sm"
-                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  <Icon size={16} />
-                  {item.label}
-                </button>
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveNav(item.id)}
+                className={`group relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "bg-slate-100 text-slate-950 font-bold"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                {/* Active Indicator Bar */}
+                {isActive && (
+                  <span className="absolute left-0 top-1/4 h-1/2 w-1.5 rounded-r bg-[#1e293b]" />
+                )}
+                <Icon size={16} className={`transition-colors ${isActive ? "text-[#1e293b]" : "text-slate-400 group-hover:text-slate-600"}`} />
+                {item.label}
+              </button>
             );
           })}
-          </nav>
+        </nav>
 
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-              System Status
-            </p>
-            <div className="flex items-center gap-2 text-sm text-slate-700">
-              <Activity
-                size={14}
-                className={hasError ? "text-amber-500" : "text-emerald-500"}
-              />
-              {hasError ? "Connection needs attention" : "Live connection"}
-            </div>
+        {/* System & Logout Footer */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 p-3 text-xs text-slate-500">
+            <Activity
+              size={13}
+              className={hasError ? "text-rose-500 animate-pulse" : "text-emerald-500"}
+            />
+            <span className="font-medium">
+              {hasError ? "Network Issues Detected" : "System Status: Online"}
+            </span>
           </div>
+
+          <button
+            onClick={onLogout}
+            disabled={loggingOut}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+          >
+            <LogOut size={16} className="text-slate-400 group-hover:text-rose-500" />
+            <span>{loggingOut ? "Logging out..." : "Logout"}</span>
+          </button>
         </div>
       </div>
     </aside>
