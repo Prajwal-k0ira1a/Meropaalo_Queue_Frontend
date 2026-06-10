@@ -297,12 +297,18 @@ export const JoinPage = () => {
     setIsJoining(true);
     setError("");
     const loadingToast = toast.loading("Issuing token...");
+    const customerId = joinUser?._id || joinUser?.id || joinUser?.userId || "";
 
     try {
       const issuedToken = await apiClient.post("/tokens/issue", {
         department: departmentId,
         date: toLocalDateOnly(),
-        ...(joinUser?._id ? { customerId: joinUser._id } : {}),
+        ...(customerId
+          ? {
+              customerId,
+              userId: customerId,
+            }
+          : {}),
       });
 
       const normalizedToken = {
