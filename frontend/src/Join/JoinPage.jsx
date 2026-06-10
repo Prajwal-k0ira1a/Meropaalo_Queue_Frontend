@@ -38,6 +38,16 @@ const readStoredTakeTokenFlag = () => {
   }
 };
 
+const getEntityId = (value) =>
+  value?._id || value?.id || value?.userId || value?.departmentId || "";
+
+const getDepartmentIdFromUser = (user) =>
+  user?.department?._id ||
+  user?.department?.id ||
+  user?.departmentId ||
+  user?.department ||
+  "";
+
 const toLocalDateOnly = (value = new Date()) => {
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, "0");
@@ -81,8 +91,7 @@ export const JoinPage = () => {
     queryDepartmentId ||
     persistedDepartment ||
     persistedToken?.departmentId ||
-    persistedAuthUser?.department?._id ||
-    persistedAuthUser?.department ||
+    getDepartmentIdFromUser(persistedAuthUser) ||
     "";
 
   const [isLoading, setIsLoading] = useState(true);
@@ -297,7 +306,7 @@ export const JoinPage = () => {
     setIsJoining(true);
     setError("");
     const loadingToast = toast.loading("Issuing token...");
-    const customerId = joinUser?._id || joinUser?.id || joinUser?.userId || "";
+    const customerId = getEntityId(joinUser);
 
     try {
       const issuedToken = await apiClient.post("/tokens/issue", {
