@@ -131,7 +131,7 @@ export default function UsersPage() {
       return updated;
     });
 
-    if (nextRole !== "staff") {
+    if (nextRole !== "staff" && nextRole !== "admin") {
       setPendingDepartments((prevDepartments) => ({
         ...prevDepartments,
         [userId]: "",
@@ -435,7 +435,7 @@ export default function UsersPage() {
                               e.target.value,
                             )
                           }
-                          disabled={savingAll || savingUser || effectiveRole !== "staff"}
+                          disabled={savingAll || savingUser || (effectiveRole !== "staff" && effectiveRole !== "admin")}
                           className="h-10 w-44 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <option value="">Unassigned</option>
@@ -566,7 +566,7 @@ export default function UsersPage() {
                           ...prev,
                           role: e.target.value,
                           department:
-                            e.target.value === "staff" ? prev.department : "",
+                            e.target.value === "staff" || e.target.value === "admin" ? prev.department : "",
                         }))
                       }
                       className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400"
@@ -592,7 +592,7 @@ export default function UsersPage() {
                         department: e.target.value,
                       }))
                     }
-                    disabled={editForm.role !== "staff"}
+                    disabled={editForm.role !== "staff" && editForm.role !== "admin"}
                     className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100"
                   >
                     <option value="">Unassigned</option>
