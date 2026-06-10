@@ -70,22 +70,6 @@ export default function AdminSidebar({ activeNav, setActiveNav }) {
         })}
       </nav>
 
-      {/* Priority Queue Promo */}
-      <div className="mx-3 mb-4">
-        <div className="bg-linear-to-br from-teal-600 to-teal-700 rounded-xl p-4">
-          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
-            <Zap size={16} className="text-white" />
-          </div>
-          <p className="text-sm font-semibold">Priority Queue</p>
-          <p className="text-xs text-teal-200 mt-1 leading-relaxed">
-            Enable VIP handling for high-value clients.
-          </p>
-          <button className="mt-3 w-full bg-white text-teal-700 text-xs font-semibold py-2 rounded-lg hover:bg-teal-50 transition-colors">
-            Upgrade Plan
-          </button>
-        </div>
-      </div>
-
       {/* User Info */}
       <div className="px-4 py-4 border-t border-white/10 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold">
