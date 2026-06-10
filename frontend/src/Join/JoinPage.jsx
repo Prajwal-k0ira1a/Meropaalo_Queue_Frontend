@@ -53,7 +53,7 @@ function DashboardStatCard({ label, value, unit, highlight = false }) {
       </p>
       <div className="mt-5 flex items-end gap-2">
         <span
-          className={`text-[30px] font-black tracking-tight ${
+          className={`text-[24px] font-black tracking-tight sm:text-[30px] ${
             highlight ? "text-teal-600" : "text-slate-900"
           }`}
         >
@@ -100,8 +100,7 @@ export const JoinPage = () => {
     takeTokenRequested ||
       persistedTakeToken ||
       queueInfo?.takeTokenEnabled ||
-      next?.takeTokenEnabled ||
-      joinUser,
+      next?.takeTokenEnabled,
   );
 
   useEffect(() => {
@@ -283,7 +282,17 @@ export const JoinPage = () => {
   };
 
   const handleJoin = async () => {
-    if (!departmentId || isJoining || !canJoin) return;
+    if (!departmentId || isJoining) return;
+
+    if (!takeTokenEnabled) {
+      const errorMsg =
+        "Take My Token is not enabled for this session yet. Please complete validation first.";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    if (!queueOpen || !isAuthenticated || isLoading) return;
 
     setIsJoining(true);
     setError("");
@@ -293,6 +302,7 @@ export const JoinPage = () => {
       const issuedToken = await apiClient.post("/tokens/issue", {
         department: departmentId,
         date: toLocalDateOnly(),
+        ...(joinUser?._id ? { customerId: joinUser._id } : {}),
       });
 
       const normalizedToken = {
@@ -333,11 +343,11 @@ export const JoinPage = () => {
   const systemStateLabel = queueOpen ? "Processing" : isLoading ? "Syncing" : "Standby";
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f7f8fd] text-slate-900">
+    <div className="min-h-screen overflow-x-hidden overflow-y-auto bg-[#f7f8fd] text-slate-900">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.10),transparent_32%),radial-gradient(circle_at_top_right,rgba(15,23,42,0.05),transparent_28%)]" />
       <JoinHeader showLogout={isAuthenticated || Boolean(persistedAuthUser)} />
 
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-5 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:py-6">
         {isLoading ? (
           <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
             <div className="space-y-4">
@@ -377,7 +387,7 @@ export const JoinPage = () => {
             )}
 
             <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
-              <aside className="space-y-3">
+              <aside className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 <DashboardStatCard
                   label="Estimated Wait"
                   value={
@@ -398,7 +408,7 @@ export const JoinPage = () => {
                   }
                   unit="total"
                 />
-                <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+                <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-[0_12px_30px_rgba(15,23,42,0.04)] sm:col-span-2 lg:col-span-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">
                     System State
                   </p>
@@ -417,7 +427,7 @@ export const JoinPage = () => {
 
               <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
                 <div className="h-1 bg-teal-500" />
-                <div className="p-5 sm:p-6 lg:p-8">
+                <div className="p-4 sm:p-6 lg:p-8">
                   {token ? (
                     <TokenSuccessCard
                       token={token}
@@ -459,7 +469,7 @@ export const JoinPage = () => {
                         <button
                           onClick={handleJoin}
                           disabled={!canJoin || isJoining}
-                          className="mt-7 inline-flex items-center justify-center gap-3 rounded-xl bg-slate-950 px-5 py-3 text-[13px] font-black uppercase tracking-[0.26em] text-white shadow-lg shadow-slate-950/10 transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="mt-7 inline-flex w-full items-center justify-center gap-3 rounded-xl bg-slate-950 px-5 py-3 text-[12px] font-black uppercase tracking-[0.22em] text-white shadow-lg shadow-slate-950/10 transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-[13px] sm:tracking-[0.26em]"
                         >
                           {isJoining ? "Issuing Token..." : "Take My Token"}
                           <span className="text-sm">-&gt;</span>

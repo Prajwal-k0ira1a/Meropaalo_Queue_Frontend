@@ -15,7 +15,7 @@ export default function TokenSuccessCard({ token, customerName }) {
           Assigned Number
         </p>
 
-        <h2 className="mt-2 font-display text-[56px] font-black tracking-tight text-slate-950 sm:text-[68px]">
+        <h2 className="mt-2 font-display text-[42px] font-black tracking-tight text-slate-950 sm:text-[56px] lg:text-[68px]">
           {token.tokenNumber}
         </h2>
 
@@ -35,7 +35,7 @@ export default function TokenSuccessCard({ token, customerName }) {
 
         <Link
           to={trackingUrl}
-          className="mt-7 inline-flex items-center justify-center gap-3 rounded-xl bg-slate-950 px-5 py-3 text-[13px] font-black uppercase tracking-[0.28em] text-white shadow-lg shadow-slate-950/10 transition-all hover:bg-slate-800 active:scale-[0.99]"
+          className="mt-7 inline-flex w-full items-center justify-center gap-3 rounded-xl bg-slate-950 px-5 py-3 text-[12px] font-black uppercase tracking-[0.22em] text-white shadow-lg shadow-slate-950/10 transition-all hover:bg-slate-800 active:scale-[0.99] sm:w-auto sm:text-[13px] sm:tracking-[0.28em]"
         >
           Monitor Live Status
           
