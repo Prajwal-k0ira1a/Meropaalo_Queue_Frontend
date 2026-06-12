@@ -105,11 +105,13 @@ export const JoinPage = () => {
   const [token, setToken] = useState(null);
 
   const queueStatus = queueInfo?.queueStatus || null;
+  const isAuthenticated = Boolean(joinUser);
   const takeTokenEnabled = Boolean(
     takeTokenRequested ||
       persistedTakeToken ||
       queueInfo?.takeTokenEnabled ||
-      next?.takeTokenEnabled,
+      next?.takeTokenEnabled ||
+      isAuthenticated,
   );
 
   useEffect(() => {
@@ -224,9 +226,8 @@ export const JoinPage = () => {
     queueInfo?.department?.name || joinUser?.department?.name || "Service Center";
   const departmentDescription =
     queueInfo?.department?.description || "General Intake";
-  const isAuthenticated = Boolean(joinUser);
   const queueOpen = queueStatus === "active";
-  const canJoin = queueOpen && isAuthenticated && takeTokenEnabled && !isLoading;
+  const canJoin = queueOpen && isAuthenticated && !isLoading;
   const showLogin = !isAuthenticated;
 
   const handleLogin = async (e) => {
